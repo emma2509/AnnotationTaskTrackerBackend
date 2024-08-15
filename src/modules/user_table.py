@@ -9,10 +9,17 @@ def add_user():
     try:
         # Extract the values in the JSON request
         request_data = request.get_json()
-        value_list = list(request_data.values())
+        attribute_value_list = [
+            request_data["user-name"],
+            request_data["first-name"],
+            request_data["second-name"],
+            request_data["team"],
+            request_data["admin"],
+            request_data["password"]
+        ]
 
         # Add record to database
-        add_to_table(EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES, value_list)
+        add_to_table(EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES, attribute_value_list)
         return response_format(200, 'Data successfully added')
 
     except KeyError as error:
