@@ -2,6 +2,7 @@ from flask import request
 import psycopg2
 from .database_transactions import add_to_table
 from ..config import EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES
+from .api_response import response_format
 
 
 def add_user():
@@ -12,11 +13,12 @@ def add_user():
 
         # Add record to database
         add_to_table(EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES, value_list)
-        return 'Data successfully added'
+        return response_format(200, 'Data successfully added')
 
     except KeyError as error:
-        return f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}'
+        return response_format(400,
+                               f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}')
     except psycopg2.DatabaseError as error:
-        return f'Error with write to database: {error}'
-    except Exception as e:
-        return f'Error: {e}'
+        return response_format(500, f'Error with write to database: {error}')
+    except Exception as error:
+        return response_format(500, f'Error: {error}')
