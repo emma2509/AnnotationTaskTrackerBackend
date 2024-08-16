@@ -1,7 +1,9 @@
 from flask import Flask
 from .modules.user_table import add_user
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/add_user', methods=['POST'])
