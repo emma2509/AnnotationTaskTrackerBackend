@@ -28,3 +28,15 @@ def add_to_table(table_name, attributes, values):
     db_cursor.execute(sql, values)
 
     end_database_connection(db_connection, db_cursor)
+
+
+def get_field_from_table(table_name, field, condition):
+    db_connection, db_cursor = get_database_connection()
+
+    sql = f"SELECT {field} FROM {table_name} {condition};"
+    db_cursor.execute(sql)
+    database_output = db_cursor.fetchall()
+
+    end_database_connection(db_connection, db_cursor)
+
+    return database_output

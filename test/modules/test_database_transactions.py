@@ -1,6 +1,7 @@
 import pytest
 from src.config import DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
-from src.modules.database_transactions import get_database_connection, end_database_connection, add_to_table
+from src.modules.database_transactions import get_database_connection, end_database_connection, add_to_table, \
+    get_field_from_table
 import psycopg2
 from unittest.mock import patch
 
@@ -81,3 +82,26 @@ class TestAddToTable:
             # Act & Assert
             with pytest.raises(Exception):
                 add_to_table('', '', '')
+
+
+class TestGetFieldFromTable:
+    @pytest.mark.parametrize("condition", [
+        "",
+        "WHERE test-condition"
+    ])
+    def test_no_condition_get_field(self, condition):
+        # Arrange
+        with patch('src.modules.database_transactions.psycopg2.connect') as mock_connect:
+            mock_connection_obj = mock_connect.return_value  # connection object returned from psycopg2.connect
+            mock_cursor_obj = mock_connection_obj.cursor.return_value  # cursor object returned from connection obj
+            mock_cursor_obj.fetchall.return_value = "mock response"
+            table_name = 'test-table'
+            field = 'test-field'
+            expected_sql = f"SELECT test-field FROM test-table {condition};"
+
+            # Act
+            actual_response = get_field_from_table(table_name, field, condition)
+
+            # Assert
+            mock_cursor_obj.execute.assert_called_with(expected_sql)
+            assert "mock response" == actual_response

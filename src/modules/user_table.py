@@ -1,6 +1,6 @@
 from flask import request
 import psycopg2
-from .database_transactions import add_to_table
+from .database_transactions import add_to_table, get_field_from_table
 from ..config import EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES
 from .api_response import response_format
 
@@ -27,5 +27,24 @@ def add_user():
                                f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}')
     except psycopg2.DatabaseError as error:
         return response_format(500, f'Error with write to database: {error}')
+    except Exception as error:
+        return response_format(500, f'Error: {error}')
+
+
+def get_user_password():
+    try:
+        # Extract user name value
+        request_data = request.get_json()
+        username = request_data["user-name"]
+
+        # Get password and return it
+        password = get_field_from_table(EMPLOYEE_TABLE_NAME, "password", f"WHERE username = '{username}'")
+        if not password:
+            return response_format(500, "Error: no records found")
+        return response_format(200, password)
+
+    # Handle errors
+    except psycopg2.Error as error:
+        return response_format(500, f'Error with reading from the database: {error}')
     except Exception as error:
         return response_format(500, f'Error: {error}')
