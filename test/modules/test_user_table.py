@@ -68,7 +68,7 @@ class TestGetUserPassword:
                                  ({'body': 'Error: no records found', 'statusCode': 500},
                                   {'body': 'Error: no records found', 'statusCode': 500})
                              ])
-    @patch('src.modules.user_table.get_field_from_table')
+    @patch('src.modules.user_table.get_record_field_from_table')
     def test_return_user_password(self, mock_get_field, expected_response, mock_return_value):
         # Arrange
         fake_input = {
@@ -87,7 +87,7 @@ class TestGetUserPassword:
             assert expected_response == actual_response
             mock_get_field.assert_called_with(employee_table, attribute, condition)
 
-    @patch('src.modules.user_table.get_field_from_table')
+    @patch('src.modules.user_table.get_record_field_from_table')
     def test_invalid_input(self, mock_get_field):
         # Arrange
         fake_input = {}
