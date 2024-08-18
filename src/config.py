@@ -7,3 +7,5 @@ DB_NAME = "annotationtaskdb"
 
 EMPLOYEE_TABLE_NAME = "employee"
 EMPLOYEE_TABLE_ATTRIBUTES = ["username", "firstname", "secondname", "team", "admin", "password"]
+
+ANNOTATION_TABLE_NAME = "annotation"

@@ -1,5 +1,6 @@
 from flask import Flask
 from .modules.user_table import add_user, get_user_password
+from .modules.annotation_table import get_all_annotations
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -16,6 +17,10 @@ def get_user_route():
     return get_user_password()
 
 
+@app.route('/get_annotations', methods=['GET'])
+def get_annotations_route():
+    return get_all_annotations()
+
+
 if __name__ == "__main__":
     app.run()
-
