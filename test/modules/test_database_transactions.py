@@ -1,7 +1,7 @@
 import pytest
 from src.config import DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
 from src.modules.database_transactions import get_database_connection, end_database_connection, add_to_table, \
-    get_field_from_table
+    get_record_field_from_table
 import psycopg2
 from unittest.mock import patch
 
@@ -112,7 +112,7 @@ class TestGetFieldFromTable:
             expected_response = {"statusCode": 200, "body": "mock response"}
 
             # Act
-            actual_response = get_field_from_table(table_name, field, condition)
+            actual_response = get_record_field_from_table(table_name, field, condition)
 
             # Assert
             mock_cursor_obj.execute.assert_called_with(expected_sql)
@@ -131,7 +131,7 @@ class TestGetFieldFromTable:
             expected_response = {"statusCode": 500, "body": "Error: no records found"}
 
             # Act
-            actual_response = get_field_from_table(table_name, field, "")
+            actual_response = get_record_field_from_table(table_name, field, "")
 
             # Assert
             mock_cursor_obj.execute.assert_called_with(expected_sql)
@@ -150,7 +150,7 @@ class TestGetFieldFromTable:
             mock_cursor_obj.execute.side_effect = mock_side_effect
 
             # Act
-            actual_response = get_field_from_table('', '', '')
+            actual_response = get_record_field_from_table('', '', '')
 
             # Assert
             assert expected_response == actual_response

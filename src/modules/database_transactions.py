@@ -38,7 +38,7 @@ def add_to_table(table_name, attributes, values):
         return response_format(200, 'Data successfully added')
 
 
-def get_field_from_table(table_name, field, condition):
+def get_record_field_from_table(table_name, field, condition):
     try:
         db_connection, db_cursor = get_database_connection()
 

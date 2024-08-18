@@ -1,5 +1,5 @@
 from flask import request
-from .database_transactions import add_to_table, get_field_from_table
+from .database_transactions import add_to_table, get_record_field_from_table
 from ..config import EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES
 from .api_response import response_format
 
@@ -33,7 +33,7 @@ def get_user_password():
         username = request_data["user-name"]
 
         # Get password by running query then return response
-        database_output = get_field_from_table(EMPLOYEE_TABLE_NAME, "password", f"WHERE username = '{username}'")
+        database_output = get_record_field_from_table(EMPLOYEE_TABLE_NAME, "password", f"WHERE username = '{username}'")
         return database_output
     except KeyError:
         return response_format(400, f'Missing user name in request')
