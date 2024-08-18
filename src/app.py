@@ -11,7 +11,7 @@ def add_user_route():
     return add_user()
 
 
-@app.route('/get_user', methods=['GET'])
+@app.route('/get_user', methods=['POST'])
 def get_user_route():
     return get_user_password()
 
