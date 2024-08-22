@@ -11,7 +11,7 @@ class TestAddUser:
         self.valid_json_input = {
             "user-name": "test-user",
             "first-name": "test-first-name",
-            "second-name": "test-second-name",
+            "last-name": "test-last-name",
             "team": "test-team",
             "admin": "test-admin",
             "password": "test-password"
@@ -35,7 +35,7 @@ class TestAddUser:
             # Assert
             assert expected_response == actual_response
             mock_add_to_table.assert_called_with("employee",
-                                                 ['username', 'firstname', 'secondname', 'team', 'admin', 'password'],
+                                                 ['username', 'firstname', 'lastname', 'team', 'admin', 'password'],
                                                  list(self.valid_json_input.values()))
 
     @patch('src.modules.user_table.add_to_table')

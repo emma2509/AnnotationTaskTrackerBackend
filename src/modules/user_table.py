@@ -11,7 +11,7 @@ def add_user():
         attribute_value_list = [
             request_data["user-name"],
             request_data["first-name"],
-            request_data["second-name"],
+            request_data["last-name"],
             request_data["team"],
             request_data["admin"],
             request_data["password"]
