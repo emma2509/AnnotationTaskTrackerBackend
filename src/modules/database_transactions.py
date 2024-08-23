@@ -20,6 +20,7 @@ def end_database_connection(db_connection, db_cursor):
     db_connection.close()
 
 
+# Create
 def add_to_table(table_name, attributes, values):
     try:
         db_connection, db_cursor = get_database_connection()
@@ -38,6 +39,7 @@ def add_to_table(table_name, attributes, values):
         return response_format(200, 'Data successfully added')
 
 
+# Read
 def get_record_field_from_table(table_name, field, condition):
     try:
         db_connection, db_cursor = get_database_connection()
