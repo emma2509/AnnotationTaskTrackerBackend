@@ -37,3 +37,7 @@ def get_user_password():
         return database_output
     except KeyError:
         return response_format(400, f'Missing user name in request')
+
+
+def get_users():
+    return get_record_field_from_table(EMPLOYEE_TABLE_NAME, "username", "")
