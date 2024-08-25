@@ -19,21 +19,22 @@ class TestGetAllAnnotations:
 
 
 class TestAddAnnotation:
+    json_input = {
+        "user-name": "fake-username",
+        "annotation-status": "fake-status",
+        "original-data": "fake-data",
+        "annotated-data": "fake-data",
+        "tags": "fake-tags"
+    }
+
     @patch('src.modules.annotation_table.add_to_table')
     def test_success_add_annotation(self, mock_add_record):
         # Arrange
         mock_add_record.return_value = {"statusCode": 200, "body": "Success"}
         expected_response = {"statusCode": 200, "body": "Success"}
-        json_input = {
-            "user-name": "fake-username",
-            "annotation-status": "fake-status",
-            "original-data": "fake-data",
-            "annotated-data": "fake-data",
-            "tags": "fake-tags"
-        }
 
         # Act
-        with app.test_request_context(method='POST', json=json_input):
+        with app.test_request_context(method='POST', json=self.json_input):
             actual_response = add_annotation_task()
 
             # Assert
@@ -60,6 +61,22 @@ class TestAddAnnotation:
             # Assert
             assert expected_response == actual_response
             mock_add_record.assert_not_called()
+
+    @patch('src.modules.annotation_table.add_to_table')
+    def test_exception_raised_add_annotation(self, mock_add_record):
+        # Arrange
+        mock_add_record.side_effect = Exception("error")
+        expected_response = {
+            "statusCode": 400,
+            "body": "Error: error"
+        }
+
+        # Act
+        with app.test_request_context(method='POST', json=self.json_input):
+            actual_response = add_annotation_task()
+
+            # Assert
+            assert expected_response == actual_response
 
 
 class TestUpdateAnnotationRecord:

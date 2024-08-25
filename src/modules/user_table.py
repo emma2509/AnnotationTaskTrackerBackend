@@ -24,6 +24,8 @@ def add_user():
     except KeyError as error:
         return response_format(400,
                                f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}')
+    except Exception as error:
+        return response_format(400, f'Error: {error}')
 
 
 def get_user_password():
@@ -37,6 +39,8 @@ def get_user_password():
         return database_output
     except KeyError:
         return response_format(400, f'Missing user name in request')
+    except Exception as error:
+        return response_format(400, f'Error: {error}')
 
 
 def get_users():

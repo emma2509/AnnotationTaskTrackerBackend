@@ -79,7 +79,7 @@ class TestGetUserPassword:
         condition = "WHERE username = 'test-user'"
         mock_get_field.return_value = mock_return_value
 
-        with app.test_request_context(method='GET', json=fake_input):
+        with app.test_request_context(method='POST', json=fake_input):
             # Act
             actual_response = get_user_password()
 
@@ -92,13 +92,30 @@ class TestGetUserPassword:
         # Arrange
         fake_input = {}
         expected_response = {"statusCode": 400, "body": "Missing user name in request"}
-        with app.test_request_context(method='GET', json=fake_input):
+        with app.test_request_context(method='POST', json=fake_input):
             # Act
             actual_response = get_user_password()
 
             # Assert
             assert expected_response == actual_response
             mock_get_field.assert_not_called()
+
+    @patch('src.modules.user_table.get_record_field_from_table')
+    def test_exception_raised_user_password(self, mock_get_field,):
+        # Arrange
+        mock_get_field.side_effect = Exception("error")
+        fake_input = {
+            "user-name": "test-user"
+        }
+        expected_response = {"statusCode": 400, "body": "Error: error"}
+
+        with app.test_request_context(method='POST', json=fake_input):
+            # Act
+            actual_response = get_user_password()
+
+            # Assert
+            assert expected_response == actual_response
+
 
 
 class TestGetUsers:

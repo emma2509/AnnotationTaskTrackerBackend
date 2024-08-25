@@ -27,6 +27,8 @@ def add_annotation_task():
     except KeyError as error:
         return response_format(400,
                                f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}')
+    except Exception as error:
+        return response_format(400, f'Error: {error}')
 
 
 def update_annotation_record():
