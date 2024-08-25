@@ -1,6 +1,6 @@
 from flask import Flask
 from .modules.user_table import add_user, get_user_password, get_users
-from .modules.annotation_table import get_all_annotations, add_annotation_task
+from .modules.annotation_table import get_all_annotations, add_annotation_task, update_annotation_record
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -30,6 +30,11 @@ def get_annotations_route():
 @app.route('/add_annotation', methods=['POST'])
 def add_annotation_route():
     return add_annotation_task()
+
+
+@app.route('/update_annotation', methods=['POST'])
+def update_annotation_route():
+    return update_annotation_record()
 
 
 if __name__ == "__main__":

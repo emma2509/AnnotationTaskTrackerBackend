@@ -1,7 +1,7 @@
 import pytest
 from src.config import DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
 from src.modules.database_transactions import get_database_connection, end_database_connection, add_to_table, \
-    get_record_field_from_table
+    get_record_field_from_table, update_field
 import psycopg2
 from unittest.mock import patch
 
@@ -78,7 +78,8 @@ class TestAddToTable:
 
     @pytest.mark.parametrize("expected_response,mock_side_effect", [
         ({"statusCode": 500, "body": "Error: test-error"}, Exception('test-error')),
-        ({"statusCode": 500, "body": "Error with adding to the database. Error: test-error"}, psycopg2.Error('test-error'))
+        ({"statusCode": 500, "body": "Error with adding to the database. Error: test-error"},
+         psycopg2.Error('test-error'))
     ])
     def test_fail_add_to_table(self, expected_response, mock_side_effect):
         # Arrange
@@ -151,6 +152,49 @@ class TestGetFieldFromTable:
 
             # Act
             actual_response = get_record_field_from_table('', '', '')
+
+            # Assert
+            assert expected_response == actual_response
+
+
+class TestUpdateField:
+    @pytest.mark.parametrize("condition", [
+        "",
+        "WHERE test-condition"
+    ])
+    def test_success_update_field(self, condition):
+        # Arrange
+        with patch('src.modules.database_transactions.psycopg2.connect') as mock_connect:
+            mock_connection_obj = mock_connect.return_value  # connection object returned from psycopg2.connect
+            mock_cursor_obj = mock_connection_obj.cursor.return_value  # cursor object returned from connection obj
+
+            table_name = 'test-table'
+            field = 'test-field'
+            value = 'test-value'
+            expected_sql = f"UPDATE test-table SET test-field = 'test-value' {condition};"
+            expected_response = {"statusCode": 200, "body": "Data successfully updated"}
+
+            # Act
+            actual_response = update_field(table_name, field, value, condition)
+
+            # Assert
+            mock_cursor_obj.execute.assert_called_with(expected_sql)
+            assert expected_response == actual_response
+
+    @pytest.mark.parametrize("expected_response,mock_side_effect", [
+        ({"statusCode": 500, "body": "Error: test-error"}, Exception('test-error')),
+        ({"statusCode": 500, "body": "Error with database when updating record. Error: test-error"},
+         psycopg2.Error('test-error'))
+    ])
+    def test_fail_update_field(self, expected_response, mock_side_effect):
+        # Arrange
+        with patch('src.modules.database_transactions.psycopg2.connect') as mock_connect:
+            mock_connection_obj = mock_connect.return_value  # connection object returned from psycopg2.connect
+            mock_cursor_obj = mock_connection_obj.cursor.return_value  # cursor object returned from connection obj
+            mock_cursor_obj.execute.side_effect = mock_side_effect
+
+            # Act
+            actual_response = update_field('', '', '', '')
 
             # Assert
             assert expected_response == actual_response

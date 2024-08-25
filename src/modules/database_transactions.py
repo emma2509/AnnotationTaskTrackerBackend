@@ -39,6 +39,23 @@ def add_to_table(table_name, attributes, values):
         return response_format(200, 'Data successfully added')
 
 
+# Update. Condition is in the form of 'WHERE something = something'
+def update_field(table_name, field, value, condition):
+    try:
+        db_connection, db_cursor = get_database_connection()
+
+        sql = f"UPDATE {table_name} SET {field} = '{value}' {condition};"
+        db_cursor.execute(sql)
+
+        end_database_connection(db_connection, db_cursor)
+
+        return response_format(200, 'Data successfully updated')
+    except psycopg2.Error as error:
+        return response_format(500, f'Error with database when updating record. Error: {error}')
+    except Exception as error:
+        return response_format(500, f'Error: {error}')
+
+
 # Read
 def get_record_field_from_table(table_name, field, condition):
     try:
