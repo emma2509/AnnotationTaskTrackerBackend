@@ -101,15 +101,16 @@ class TestGetUserPassword:
             mock_get_field.assert_not_called()
 
 
-@patch('src.modules.user_table.get_record_field_from_table')
-def test_get_users(mock_get_record):
-    # Arrange
-    mock_get_record.return_value = {"statusCode": 200, "body": "Success"}
-    expected_response = {"statusCode": 200, "body": "Success"}
+class TestGetUsers:
+    @patch('src.modules.user_table.get_record_field_from_table')
+    def test_get_users(self, mock_get_record):
+        # Arrange
+        mock_get_record.return_value = {"statusCode": 200, "body": "Success"}
+        expected_response = {"statusCode": 200, "body": "Success"}
 
-    # Act
-    actual_response = get_users()
+        # Act
+        actual_response = get_users()
 
-    # Assert
-    assert expected_response == actual_response
-    mock_get_record.assert_called_with("employee", "username", "")
+        # Assert
+        assert expected_response == actual_response
+        mock_get_record.assert_called_with("employee", "username", "")
