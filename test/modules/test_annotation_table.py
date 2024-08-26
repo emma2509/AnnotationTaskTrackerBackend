@@ -1,5 +1,6 @@
 from unittest.mock import patch
-from src.modules.annotation_table import get_all_annotations, add_annotation_task, update_annotation_record
+from src.modules.annotation_table import get_all_annotations, add_annotation_task, update_annotation_record, \
+    delete_annotation_record
 from src.app import app
 
 
@@ -198,3 +199,58 @@ class TestUpdateAnnotationRecord:
             mock_get_record.assert_called_with(self.annotation_table_name, self.annotation_table_fields, self.condition)
             mock_update_field.assert_called_with(self.annotation_table_name, "username", "new-name", self.condition)
 
+
+class TestDeleteAnnotationRecord:
+    valid_json = {
+        "annotation-id": "fake-id"
+    }
+
+    def test_invalid_input(self):
+        # Arrange
+        invalid_input = {}
+        expected_response = {
+            "statusCode": 400,
+            "body": "Missing or incorrect JSON attributes. Error related to extracting key value: 'annotation-id'"
+        }
+
+        # Act
+        with app.test_request_context(method='POST', json=invalid_input):
+            actual_response = delete_annotation_record()
+
+            # Assert
+            assert expected_response == actual_response
+
+    @patch('src.modules.annotation_table.delete_record')
+    def test_exception_thrown(self, mock_delete_record):
+        # Arrange
+        mock_delete_record.side_effect = Exception("test-error")
+        expected_response = {
+            "statusCode": 400,
+            "body": "Error: test-error"
+        }
+
+        # Act
+        with app.test_request_context(method='POST', json=self.valid_json):
+            actual_response = delete_annotation_record()
+
+            # Assert
+            assert expected_response == actual_response
+
+    @patch('src.modules.annotation_table.delete_record')
+    def test_successful_deletion(self, mock_delete_record):
+        # Arrange
+        mock_delete_record.return_value = {
+            "statusCode": 200,
+            "body": "Success"
+        }
+        expected_response = {
+            "statusCode": 200,
+            "body": "Success"
+        }
+
+        # Act
+        with app.test_request_context(method='POST', json=self.valid_json):
+            actual_response = delete_annotation_record()
+
+            # Assert
+            assert expected_response == actual_response

@@ -1,7 +1,7 @@
 from flask import request
 
 from .api_response import response_format
-from .database_transactions import get_record_field_from_table, add_to_table, update_field
+from .database_transactions import get_record_field_from_table, add_to_table, update_field, delete_record
 from ..config import ANNOTATION_TABLE_NAME, ANNOTATION_TABLE_ATTRIBUTES
 
 
@@ -71,5 +71,20 @@ def update_annotation_record():
     except KeyError as error:
         return response_format(400,
                                f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}')
+    except Exception as error:
+        return response_format(400, f'Error: {error}')
+
+
+def delete_annotation_record():
+    try:
+        request_data = request.get_json()
+        annotation_id = request_data["annotation-id"]
+
+        response = delete_record(ANNOTATION_TABLE_NAME, f"WHERE annotationid = {annotation_id}")
+
+        return response
+    except KeyError as error:
+        return response_format(400,
+                           f'Missing or incorrect JSON attributes. Error related to extracting key value: {error}')
     except Exception as error:
         return response_format(400, f'Error: {error}')

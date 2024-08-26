@@ -76,3 +76,21 @@ def get_record_field_from_table(table_name, field, condition):
         return response_format(500, f'Error with reading from the database: {error}')
     except Exception as error:
         return response_format(500, f'Error: {error}')
+
+
+# Delete. Condition is in the form of 'WHERE something = something' and helps identify what records is being deleted
+def delete_record(table_name, condition):
+    try:
+        db_connection, db_cursor = get_database_connection()
+
+        sql = f"DELETE FROM {table_name} {condition};"
+        db_cursor.execute(sql)
+
+        end_database_connection(db_connection, db_cursor)
+
+        return response_format(200, "Successfully deleted record")
+
+    except psycopg2.Error as error:
+        return response_format(500, f'Error with deleting from the database: {error}')
+    except Exception as error:
+        return response_format(500, f'Error: {error}')

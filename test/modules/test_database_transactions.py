@@ -1,7 +1,7 @@
 import pytest
 from src.config import DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
 from src.modules.database_transactions import get_database_connection, end_database_connection, add_to_table, \
-    get_record_field_from_table, update_field
+    get_record_field_from_table, update_field, delete_record
 import psycopg2
 from unittest.mock import patch
 
@@ -195,6 +195,45 @@ class TestUpdateField:
 
             # Act
             actual_response = update_field('', '', '', '')
+
+            # Assert
+            assert expected_response == actual_response
+
+
+class TestDeleteRecord:
+    def test_successful_delete(self):
+        # Arrange
+        with patch('src.modules.database_transactions.psycopg2.connect') as mock_connect:
+            mock_connection_obj = mock_connect.return_value  # connection object returned from psycopg2.connect
+            mock_cursor_obj = mock_connection_obj.cursor.return_value  # cursor object returned from connection obj
+
+            table_name = 'test-table'
+            condition = "WHERE field=value"
+
+            expected_sql = "DELETE FROM test-table WHERE field=value;"
+            expected_response = {"statusCode": 200, "body": 'Successfully deleted record'}
+
+            # Act
+            actual_response = delete_record(table_name, condition)
+
+            # Assert
+            mock_cursor_obj.execute.assert_called_with(expected_sql)
+            assert expected_response == actual_response
+
+    @pytest.mark.parametrize("expected_response,mock_side_effect", [
+        ({"statusCode": 500, "body": "Error: test-error"}, Exception('test-error')),
+        ({"statusCode": 500, "body": "Error with deleting from the database: test-error"},
+         psycopg2.Error('test-error'))
+    ])
+    def test_fail_delete(self, expected_response, mock_side_effect):
+        # Arrange
+        with patch('src.modules.database_transactions.psycopg2.connect') as mock_connect:
+            mock_connection_obj = mock_connect.return_value  # connection object returned from psycopg2.connect
+            mock_cursor_obj = mock_connection_obj.cursor.return_value  # cursor object returned from connection obj
+            mock_cursor_obj.execute.side_effect = mock_side_effect
+
+            # Act
+            actual_response = delete_record("", "")
 
             # Assert
             assert expected_response == actual_response
