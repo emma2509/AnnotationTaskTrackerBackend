@@ -1,6 +1,7 @@
 from flask import Flask
-from .modules.user_table import add_user, get_user_password, get_users
-from .modules.annotation_table import get_all_annotations, add_annotation_task, update_annotation_record, delete_annotation_record
+from .modules.user_table import add_user, get_user_password, get_users, get_user_access_level
+from .modules.annotation_table import get_all_annotations, add_annotation_task, update_annotation_record, \
+    delete_annotation_record
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -15,6 +16,11 @@ def add_user_route():
 @app.route('/get_user_password', methods=['POST'])
 def get_user_password_route():
     return get_user_password()
+
+
+@app.route('/get_user_access_level', methods=['POST'])
+def get_user_access_route():
+    return get_user_access_level()
 
 
 @app.route('/get_users', methods=['GET'])
@@ -40,6 +46,7 @@ def update_annotation_route():
 @app.route('/delete_annotation', methods=['POST'])
 def delete_annotation_route():
     return delete_annotation_record()
+
 
 if __name__ == "__main__":
     app.run()

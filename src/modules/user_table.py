@@ -45,3 +45,20 @@ def get_user_password():
 
 def get_users():
     return get_record_field_from_table(EMPLOYEE_TABLE_NAME, "username", "")
+
+
+# Return true if the user is admin and false if they are not
+def get_user_access_level():
+    try:
+        # Extract user name value
+        request_data = request.get_json()
+        username = request_data["user-name"]
+
+        # Get user admin field value
+        database_output = get_record_field_from_table(EMPLOYEE_TABLE_NAME, "admin", f"WHERE username = '{username}'")
+
+        return database_output
+    except KeyError:
+        return response_format(400, f'Missing user name in request')
+    except Exception as error:
+        return response_format(400, f'Error: {error}')

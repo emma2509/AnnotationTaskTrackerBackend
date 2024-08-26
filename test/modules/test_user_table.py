@@ -1,4 +1,4 @@
-from src.modules.user_table import add_user, get_user_password, get_users
+from src.modules.user_table import add_user, get_user_password, get_users, get_user_access_level
 from unittest.mock import patch
 from src.app import app
 import pytest
@@ -101,7 +101,7 @@ class TestGetUserPassword:
             mock_get_field.assert_not_called()
 
     @patch('src.modules.user_table.get_record_field_from_table')
-    def test_exception_raised_user_password(self, mock_get_field,):
+    def test_exception_raised_user_password(self, mock_get_field, ):
         # Arrange
         mock_get_field.side_effect = Exception("error")
         fake_input = {
@@ -117,7 +117,6 @@ class TestGetUserPassword:
             assert expected_response == actual_response
 
 
-
 class TestGetUsers:
     @patch('src.modules.user_table.get_record_field_from_table')
     def test_get_users(self, mock_get_record):
@@ -131,3 +130,50 @@ class TestGetUsers:
         # Assert
         assert expected_response == actual_response
         mock_get_record.assert_called_with("employee", "username", "")
+
+
+class TestGetUserAccessLevel:
+    valid_input = {
+        "user-name": "test-user"
+    }
+
+    @patch('src.modules.user_table.get_record_field_from_table')
+    def test_invalid_input(self, mock_get_field):
+        # Arrange
+        invalid_input = {}
+        expected_response = {"statusCode": 400, "body": "Missing user name in request"}
+
+        with app.test_request_context(method='POST', json=invalid_input):
+            # Act
+            actual_response = get_user_access_level()
+
+            # Assert
+            assert expected_response == actual_response
+            mock_get_field.assert_not_called()
+
+    @patch('src.modules.user_table.get_record_field_from_table')
+    def test_success_response(self, mock_get_field):
+        # Arrange
+        mock_get_field.return_value = {'body': 'fake-password', 'statusCode': 200}
+        expected_response = {'body': 'fake-password', 'statusCode': 200}
+
+        with app.test_request_context(method='POST', json=self.valid_input):
+            # Act
+            actual_response = get_user_access_level()
+
+            # Assert
+            assert expected_response == actual_response
+            mock_get_field.assert_called_with("employee", "admin", "WHERE username = 'test-user'")
+
+    @patch('src.modules.user_table.get_record_field_from_table')
+    def test_exception_raise(self, mock_get_field):
+        # Arrange
+        mock_get_field.side_effect = Exception("test-error")
+        expected_response = {'body': 'Error: test-error', 'statusCode': 400}
+
+        with app.test_request_context(method='POST', json=self.valid_input):
+            # Act
+            actual_response = get_user_access_level()
+
+            # Assert
+            assert expected_response == actual_response
