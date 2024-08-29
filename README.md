@@ -1,5 +1,7 @@
 ## AnnotationTaskTrackerBackend
 
+This project uses the [Flask](https://flask.palletsprojects.com/en/3.0.x/) framework to create different API routes.
+
 ### Install dependencies
 Run `pip install -r requirements.txt`
 
