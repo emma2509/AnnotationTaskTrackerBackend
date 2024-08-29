@@ -5,10 +5,7 @@ from .api_response import response_format
 
 def get_database_connection():
     db_connection = psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
+        host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASSWORD
     )
     db_cursor = db_connection.cursor()
     return db_connection, db_cursor
@@ -25,18 +22,26 @@ def add_to_table(table_name, attributes, values):
     try:
         db_connection, db_cursor = get_database_connection()
 
-        attribute_list = ", ".join(attributes)  # creates a string list for the SQL command
-        value_placeholder = "%s" + ", %s" * (len(attributes) - 1)  # create string placeholder for SQL command
-        sql = f'INSERT INTO {table_name} ({attribute_list}) VALUES ({value_placeholder});'
+        attribute_list = ", ".join(
+            attributes
+        )  # creates a string list for the SQL command
+        value_placeholder = "%s" + ", %s" * (
+            len(attributes) - 1
+        )  # create string placeholder for SQL command
+        sql = (
+            f"INSERT INTO {table_name} ({attribute_list}) VALUES ({value_placeholder});"
+        )
         db_cursor.execute(sql, values)
 
         end_database_connection(db_connection, db_cursor)
     except psycopg2.Error as error:
-        return response_format(500, f'Error with adding to the database. Error: {error}')
+        return response_format(
+            500, f"Error with adding to the database. Error: {error}"
+        )
     except Exception as error:
-        return response_format(500, f'Error: {error}')
+        return response_format(500, f"Error: {error}")
     else:
-        return response_format(200, 'Data successfully added')
+        return response_format(200, "Data successfully added")
 
 
 # Update. Condition is in the form of 'WHERE something = something'
@@ -49,11 +54,13 @@ def update_field(table_name, field, value, condition):
 
         end_database_connection(db_connection, db_cursor)
 
-        return response_format(200, 'Data successfully updated')
+        return response_format(200, "Data successfully updated")
     except psycopg2.Error as error:
-        return response_format(500, f'Error with database when updating record. Error: {error}')
+        return response_format(
+            500, f"Error with database when updating record. Error: {error}"
+        )
     except Exception as error:
-        return response_format(500, f'Error: {error}')
+        return response_format(500, f"Error: {error}")
 
 
 # Read
@@ -73,9 +80,9 @@ def get_record_field_from_table(table_name, field, condition):
         return response_format(200, database_output)
 
     except psycopg2.Error as error:
-        return response_format(500, f'Error with reading from the database: {error}')
+        return response_format(500, f"Error with reading from the database: {error}")
     except Exception as error:
-        return response_format(500, f'Error: {error}')
+        return response_format(500, f"Error: {error}")
 
 
 # Delete. Condition is in the form of 'WHERE something = something' and helps identify what records is being deleted
@@ -91,6 +98,6 @@ def delete_record(table_name, condition):
         return response_format(200, "Successfully deleted record")
 
     except psycopg2.Error as error:
-        return response_format(500, f'Error with deleting from the database: {error}')
+        return response_format(500, f"Error with deleting from the database: {error}")
     except Exception as error:
-        return response_format(500, f'Error: {error}')
+        return response_format(500, f"Error: {error}")
