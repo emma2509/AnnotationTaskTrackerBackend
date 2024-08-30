@@ -15,3 +15,10 @@ Run `pip install -r requirements.txt`
 Render build will fail if unit tests are failing.
 
 To run unit tests locally run `pytest test`
+
+### Calling API routes
+You can call the API routes by using `curl` commands.
+
+Below is an example command you can use to call an API route, replace the values in the `[]` with the API call values.
+
+`curl -X [POST/GET] -H 'Content-Type: application/json' -d '[JSON data]' [API-URL]`
