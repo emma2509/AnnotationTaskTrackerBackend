@@ -20,7 +20,11 @@ class TestGetAllAnnotations:
 
         # Assert
         assert expected_response == actual_response
-        mock_get_fields.assert_called_with("annotation", "*", "")
+        mock_get_fields.assert_called_with(
+            "annotation",
+            "annotation.*, employee.firstname, employee.lastname, employee.team",
+            "INNER JOIN employee ON annotation.username=employee.username;"
+        )
 
 
 class TestAddAnnotation:

@@ -7,11 +7,14 @@ from .database_transactions import (
     update_field,
     delete_record,
 )
-from ..config import ANNOTATION_TABLE_NAME, ANNOTATION_TABLE_ATTRIBUTES
+from ..config import ANNOTATION_TABLE_NAME, ANNOTATION_TABLE_ATTRIBUTES, EMPLOYEE_TABLE_NAME
 
 
 def get_all_annotations():
-    return get_record_field_from_table(ANNOTATION_TABLE_NAME, "*", "")
+    # does inner join to get all annotation table fields and some details about the employee
+    fields = f'{ANNOTATION_TABLE_NAME}.*, {EMPLOYEE_TABLE_NAME}.firstname, {EMPLOYEE_TABLE_NAME}.lastname, {EMPLOYEE_TABLE_NAME}.team'
+    condition = f'INNER JOIN {EMPLOYEE_TABLE_NAME} ON {ANNOTATION_TABLE_NAME}.username={EMPLOYEE_TABLE_NAME}.username;'
+    return get_record_field_from_table(ANNOTATION_TABLE_NAME, fields, condition)
 
 
 def add_annotation_task():
