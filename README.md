@@ -22,3 +22,10 @@ You can call the API routes by using `curl` commands.
 Below is an example command you can use to call an API route, replace the values in the `[]` with the API call values.
 
 `curl -X [POST/GET] -H 'Content-Type: application/json' -d '[JSON data]' [API-URL]`
+
+# Lint code
+[Ruff](https://github.com/astral-sh/ruff?tab=readme-ov-file) is used as a linter and formater.
+
+Run linter: `ruff check`
+
+Run formatter: `ruff format`

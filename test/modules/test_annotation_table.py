@@ -23,7 +23,7 @@ class TestGetAllAnnotations:
         mock_get_fields.assert_called_with(
             "annotation",
             "annotation.*, employee.firstname, employee.lastname, employee.team",
-            "INNER JOIN employee ON annotation.username=employee.username;"
+            "INNER JOIN employee ON annotation.username=employee.username;",
         )
 
 

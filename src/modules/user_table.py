@@ -44,7 +44,7 @@ def get_user_password():
         )
         return database_output
     except KeyError:
-        return response_format(400, f"Missing user name in request")
+        return response_format(400, "Missing user name in request")
     except Exception as error:
         return response_format(400, f"Error: {error}")
 
@@ -67,6 +67,6 @@ def get_user_access_level():
 
         return database_output
     except KeyError:
-        return response_format(400, f"Missing user name in request")
+        return response_format(400, "Missing user name in request")
     except Exception as error:
         return response_format(400, f"Error: {error}")

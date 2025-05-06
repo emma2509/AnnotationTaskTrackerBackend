@@ -13,7 +13,6 @@ from unittest.mock import patch
 
 
 class TestGetDatabaseConnection:
-
     def test_successful_database_connection(self):
         # Act
         db_connection, db_cursor = get_database_connection()
@@ -168,7 +167,7 @@ class TestGetFieldFromTable:
 
             table_name = "test-table"
             field = "test-field"
-            expected_sql = f"SELECT test-field FROM test-table ;"
+            expected_sql = "SELECT test-field FROM test-table ;"
             expected_response = {"statusCode": 500, "body": "Error: no records found"}
 
             # Act

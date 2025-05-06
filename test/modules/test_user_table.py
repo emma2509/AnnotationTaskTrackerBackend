@@ -10,7 +10,6 @@ import pytest
 
 
 class TestAddUser:
-
     @pytest.fixture()
     def set_up(self):
         self.valid_json_input = {
