@@ -1,0 +1,41 @@
+from flask import request
+
+from ..config import EMPLOYEE_TABLE_NAME
+from .api_response import response_format
+from .database_transactions import get_record_field_from_table
+
+
+def authenticate():
+    try:
+        request_headers = request.headers
+        username = request_headers["requester-user-name"]
+        password = request_headers["requester-password"]
+        # Get actual password for account to check against inputted password
+        get_user_password = get_record_field_from_table(
+            EMPLOYEE_TABLE_NAME, "password", f"WHERE username = '{username}'"
+        )
+
+        # Get user admin field value
+        is_user_admin = get_record_field_from_table(
+            EMPLOYEE_TABLE_NAME, "admin", f"WHERE username = '{username}'"
+        )
+
+        if get_user_password["statusCode"] != 200:
+            return get_user_password
+        if is_user_admin["statusCode"] != 200:
+            return is_user_admin
+        if get_user_password["body"][0][0] == password and is_user_admin["body"][0][0]:
+            return response_format(200, "Authenticated, you have admin access")
+        if (
+            get_user_password["body"][0][0] == password
+            and not is_user_admin["body"][0][0]
+        ):
+            return response_format(200, "Authenticated, you have regular access")
+        return response_format(401, "Authentication failed.")
+    except KeyError as error:
+        return response_format(
+            400,
+            f"Missing or incorrect JSON attributes. Error related to extracting key value: {error}",
+        )
+    except Exception as error:
+        return response_format(400, f"Error: {error}")

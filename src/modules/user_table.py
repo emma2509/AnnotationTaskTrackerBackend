@@ -1,4 +1,6 @@
 from flask import request
+
+from .authentication import authenticate
 from .database_transactions import add_to_table, get_record_field_from_table
 from ..config import EMPLOYEE_TABLE_NAME, EMPLOYEE_TABLE_ATTRIBUTES
 from .api_response import response_format
@@ -6,6 +8,9 @@ from .api_response import response_format
 
 def add_user():
     try:
+        auth = authenticate()
+        if auth["statusCode"] != 200:
+            return auth
         # Extract the values in the JSON request
         request_data = request.get_json()
         attribute_value_list = [
@@ -32,41 +37,8 @@ def add_user():
         return response_format(400, f"Error: {error}")
 
 
-def get_user_password():
-    try:
-        # Extract user name value
-        request_data = request.get_json()
-        username = request_data["user-name"]
-
-        # Get password by running query then return response
-        database_output = get_record_field_from_table(
-            EMPLOYEE_TABLE_NAME, "password", f"WHERE username = '{username}'"
-        )
-        return database_output
-    except KeyError:
-        return response_format(400, "Missing user name in request")
-    except Exception as error:
-        return response_format(400, f"Error: {error}")
-
-
 def get_users():
+    auth = authenticate()
+    if auth["statusCode"] != 200:
+        return auth
     return get_record_field_from_table(EMPLOYEE_TABLE_NAME, "username", "")
-
-
-# Return true if the user is admin and false if they are not
-def get_user_access_level():
-    try:
-        # Extract user name value
-        request_data = request.get_json()
-        username = request_data["user-name"]
-
-        # Get user admin field value
-        database_output = get_record_field_from_table(
-            EMPLOYEE_TABLE_NAME, "admin", f"WHERE username = '{username}'"
-        )
-
-        return database_output
-    except KeyError:
-        return response_format(400, "Missing user name in request")
-    except Exception as error:
-        return response_format(400, f"Error: {error}")

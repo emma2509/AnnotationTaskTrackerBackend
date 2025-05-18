@@ -1,6 +1,7 @@
 from flask import request
 
 from .api_response import response_format
+from .authentication import authenticate
 from .database_transactions import (
     get_record_field_from_table,
     add_to_table,
@@ -15,6 +16,9 @@ from ..config import (
 
 
 def get_all_annotations():
+    auth = authenticate()
+    if auth["statusCode"] != 200:
+        return auth
     # does inner join to get all annotation table fields and some details about the employee
     fields = f"{ANNOTATION_TABLE_NAME}.*, {EMPLOYEE_TABLE_NAME}.firstname, {EMPLOYEE_TABLE_NAME}.lastname, {EMPLOYEE_TABLE_NAME}.team"
     condition = f"INNER JOIN {EMPLOYEE_TABLE_NAME} ON {ANNOTATION_TABLE_NAME}.username={EMPLOYEE_TABLE_NAME}.username;"
@@ -23,6 +27,9 @@ def get_all_annotations():
 
 def add_annotation_task():
     try:
+        auth = authenticate()
+        if auth["statusCode"] != 200:
+            return auth
         # Extract the values in the JSON request
         request_data = request.get_json()
         attribute_value_list = [
@@ -49,7 +56,15 @@ def add_annotation_task():
 
 def update_annotation_record():
     try:
+        auth = authenticate()
         request_data = request.get_json()
+        if auth["statusCode"] != 200:
+            return auth
+        elif (
+            "regular" in auth["body"]
+            and request_data["requester-user-name"] != request_data["user-name"]
+        ):
+            return response_format(403, "Incorrect permissions.")
         new_field_values = [
             request_data["user-name"],
             request_data["annotation-status"],
@@ -97,6 +112,11 @@ def update_annotation_record():
 
 def delete_annotation_record():
     try:
+        auth = authenticate()
+        if auth["statusCode"] != 200:
+            return auth
+        elif "admin" not in auth["body"]:
+            return response_format(403, "Incorrect permissions.")
         request_data = request.get_json()
         annotation_id = request_data["annotation-id"]
 

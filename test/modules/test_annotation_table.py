@@ -10,8 +10,10 @@ from src.app import app
 
 class TestGetAllAnnotations:
     @patch("src.modules.annotation_table.get_record_field_from_table")
-    def test_get_all_annotations(self, mock_get_fields):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_get_all_annotations(self, mock_auth, mock_get_fields):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_get_fields.return_value = {"statusCode": 200, "body": "fields"}
         expected_response = {"statusCode": 200, "body": "fields"}
 
@@ -37,8 +39,10 @@ class TestAddAnnotation:
     }
 
     @patch("src.modules.annotation_table.add_to_table")
-    def test_success_add_annotation(self, mock_add_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_success_add_annotation(self, mock_auth, mock_add_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_add_record.return_value = {"statusCode": 200, "body": "Success"}
         expected_response = {"statusCode": 200, "body": "Success"}
 
@@ -61,8 +65,10 @@ class TestAddAnnotation:
             )
 
     @patch("src.modules.annotation_table.add_to_table")
-    def test_fail_add_annotation(self, mock_add_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_fail_add_annotation(self, mock_auth, mock_add_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         expected_response = {
             "statusCode": 400,
             "body": "Missing or incorrect JSON attributes. Error related to extracting key value: 'user-name'",
@@ -78,8 +84,10 @@ class TestAddAnnotation:
             mock_add_record.assert_not_called()
 
     @patch("src.modules.annotation_table.add_to_table")
-    def test_exception_raised_add_annotation(self, mock_add_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_exception_raised_add_annotation(self, mock_auth, mock_add_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_add_record.side_effect = Exception("error")
         expected_response = {"statusCode": 400, "body": "Error: error"}
 
@@ -110,8 +118,10 @@ class TestUpdateAnnotationRecord:
         "body": [("fake-name", "fake-status", "fake-text", "fake-text", "fake-tags")],
     }
 
-    def test_invalid_input(self):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_invalid_input(self, mock_auth):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         invalid_input = {}
         expected_response = {
             "statusCode": 400,
@@ -126,8 +136,10 @@ class TestUpdateAnnotationRecord:
             assert expected_response == actual_response
 
     @patch("src.modules.annotation_table.get_record_field_from_table")
-    def test_get_record_error(self, mock_get_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_get_record_error(self, mock_auth, mock_get_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_get_record.return_value = {
             "statusCode": 500,
             "body": "Error: no records found",
@@ -146,8 +158,10 @@ class TestUpdateAnnotationRecord:
 
     @patch("src.modules.annotation_table.get_record_field_from_table")
     @patch("src.modules.annotation_table.update_field")
-    def test_no_updates_done(self, mock_update_field, mock_get_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_no_updates_done(self, mock_auth, mock_update_field, mock_get_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_get_record.return_value = self.mock_get_records_response
         expected_response = {"statusCode": 200, "body": "Success updating record"}
 
@@ -164,8 +178,10 @@ class TestUpdateAnnotationRecord:
 
     @patch("src.modules.annotation_table.get_record_field_from_table")
     @patch("src.modules.annotation_table.update_field")
-    def test_update_field_error(self, mock_update_field, mock_get_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_update_field_error(self, mock_auth, mock_update_field, mock_get_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_get_record.return_value = self.mock_get_records_response
         self.json_input["user-name"] = "new-name"
         mock_update_field.return_value = {
@@ -189,8 +205,10 @@ class TestUpdateAnnotationRecord:
 
     @patch("src.modules.annotation_table.get_record_field_from_table")
     @patch("src.modules.annotation_table.update_field")
-    def test_success_update_record(self, mock_update_field, mock_get_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_success_update_record(self, mock_auth, mock_update_field, mock_get_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_get_record.return_value = self.mock_get_records_response
         self.json_input["user-name"] = "new-name"
         mock_update_field.return_value = {"statusCode": 200, "body": "Success"}
@@ -209,12 +227,49 @@ class TestUpdateAnnotationRecord:
                 self.annotation_table_name, "username", "new-name", self.condition
             )
 
+    @patch("src.modules.annotation_table.authenticate")
+    def test_fail_update_due_to_regular_and_non_owner(self, mock_auth):
+        # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "regular"}
+        expected_response = {"statusCode": 403, "body": "Incorrect permissions."}
+        self.json_input["requester-user-name"] = "different name"
+
+        # Act
+        with app.test_request_context(method="POST", json=self.json_input):
+            actual_response = update_annotation_record()
+
+            # Assert
+            assert expected_response == actual_response
+
+    @patch("src.modules.annotation_table.get_record_field_from_table")
+    @patch("src.modules.annotation_table.update_field")
+    @patch("src.modules.annotation_table.authenticate")
+    def test_succeed_update_regular_owner(
+        self, mock_auth, mock_update_field, mock_get_record
+    ):
+        # Arrange
+        mock_get_record.return_value = self.mock_get_records_response
+        mock_update_field.return_value = {"statusCode": 200, "body": "Success"}
+        mock_auth.return_value = {"statusCode": 200, "body": "regular"}
+        expected_response = {"statusCode": 200, "body": "Success updating record"}
+        self.json_input["requester-user-name"] = "name"
+        self.json_input["user-name"] = "name"
+
+        # Act
+        with app.test_request_context(method="POST", json=self.json_input):
+            actual_response = update_annotation_record()
+
+            # Assert
+            assert expected_response == actual_response
+
 
 class TestDeleteAnnotationRecord:
     valid_json = {"annotation-id": "fake-id"}
 
-    def test_invalid_input(self):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_invalid_input(self, mock_auth):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         invalid_input = {}
         expected_response = {
             "statusCode": 400,
@@ -228,9 +283,27 @@ class TestDeleteAnnotationRecord:
             # Assert
             assert expected_response == actual_response
 
-    @patch("src.modules.annotation_table.delete_record")
-    def test_exception_thrown(self, mock_delete_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_fail_due_to_invalid_perms(self, mock_auth):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "regular"}
+        expected_response = {
+            "statusCode": 403,
+            "body": "Incorrect permissions.",
+        }
+
+        # Act
+        with app.test_request_context(method="POST", json=self.valid_json):
+            actual_response = delete_annotation_record()
+
+            # Assert
+            assert expected_response == actual_response
+
+    @patch("src.modules.annotation_table.delete_record")
+    @patch("src.modules.annotation_table.authenticate")
+    def test_exception_thrown(self, mock_auth, mock_delete_record):
+        # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_delete_record.side_effect = Exception("test-error")
         expected_response = {"statusCode": 400, "body": "Error: test-error"}
 
@@ -242,8 +315,10 @@ class TestDeleteAnnotationRecord:
             assert expected_response == actual_response
 
     @patch("src.modules.annotation_table.delete_record")
-    def test_successful_deletion(self, mock_delete_record):
+    @patch("src.modules.annotation_table.authenticate")
+    def test_successful_deletion(self, mock_auth, mock_delete_record):
         # Arrange
+        mock_auth.return_value = {"statusCode": 200, "body": "admin"}
         mock_delete_record.return_value = {"statusCode": 200, "body": "Success"}
         expected_response = {"statusCode": 200, "body": "Success"}
 

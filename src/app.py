@@ -1,9 +1,9 @@
 from flask import Flask
+
+from .modules.authentication import authenticate
 from .modules.user_table import (
     add_user,
-    get_user_password,
     get_users,
-    get_user_access_level,
 )
 from .modules.annotation_table import (
     get_all_annotations,
@@ -17,19 +17,14 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.route("/log_in", methods=["POST"])
+def log_in_route():
+    return authenticate()
+
+
 @app.route("/add_user", methods=["POST"])
 def add_user_route():
     return add_user()
-
-
-@app.route("/get_user_password", methods=["POST"])
-def get_user_password_route():
-    return get_user_password()
-
-
-@app.route("/get_user_access_level", methods=["POST"])
-def get_user_access_route():
-    return get_user_access_level()
 
 
 @app.route("/get_users", methods=["GET"])
