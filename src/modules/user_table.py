@@ -1,4 +1,5 @@
 from flask import request
+import bcrypt
 
 from .authentication import authenticate
 from .database_transactions import add_to_table, get_record_field_from_table
@@ -8,18 +9,16 @@ from .api_response import response_format
 
 def add_user():
     try:
-        auth = authenticate()
-        if auth["statusCode"] != 200:
-            return auth
         # Extract the values in the JSON request
         request_data = request.get_json()
+        hashed_password = bcrypt.hashpw(request_data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         attribute_value_list = [
             request_data["user-name"],
             request_data["first-name"],
             request_data["last-name"],
             request_data["team"],
             request_data["admin"],
-            request_data["password"],
+            hashed_password,
         ]
 
         # Add record to database

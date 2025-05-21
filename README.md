@@ -2,16 +2,24 @@
 
 This project uses the [Flask](https://flask.palletsprojects.com/en/3.0.x/) framework to create different API routes.
 
-### Install dependencies
+### Initial Set up
+
+#### Set up env
+
+Create virtual env: `python -m venv nameofvenv`
+
+Activate env: `source .nameofvenv/bin/activate`
+
+#### Install dependencies
 Run `pip install -r requirements.txt`
 
-### Run locally
+### Running locally
 1. To connect to database you will need to go to Render and get the database external URL. This will be in this format `postgresql://USER:PASSWORD@EXTERNAL_HOST:PORT/DATABASE`
    1. You can also connect to your database via the CLI with the following command: `psql -h <db-address> -d <db-name> -U <username> -W`
 2. Extract the `USER` name and `PASSWORD` and set this as your env variables (`export DB_USER="" && export DB_PASSWORD="" && export DB_HOST=""`)
 3. Run `python src/app.py` or `flask --app src/app run` or `gunicorn src.app:app` to run the API locally. The URL for the local API will be returned.
 
-### Run unit tests
+### Running unit tests
 Render build will fail if unit tests are failing.
 
 To run unit tests locally run `pytest test`
@@ -23,7 +31,7 @@ Below is an example command you can use to call an API route, replace the values
 
 `curl -X [POST/GET] -H 'Content-Type: application/json' -d '[JSON data]' [API-URL]`
 
-# Lint code
+### Lint code
 [Ruff](https://github.com/astral-sh/ruff?tab=readme-ov-file) is used as a linter and formater.
 
 Run linter: `ruff check`

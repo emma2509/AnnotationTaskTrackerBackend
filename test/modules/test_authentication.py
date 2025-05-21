@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+import bcrypt
+
 from src.modules.authentication import authenticate
 from src.app import app
 import pytest
@@ -10,6 +12,8 @@ class TestAuthenticate:
     generic_success_message = {"statusCode": 200, "body": "Success"}
     empty_input = {}
     valid_input = {"requester-user-name": "username", "requester-password": "pass123"}
+    correct_password_hash = bcrypt.hashpw(valid_input["requester-password"].encode("utf-8"), bcrypt.gensalt()).decode('utf8')
+    incorrect_password_hash= bcrypt.hashpw("wrong pass".encode("utf-8"), bcrypt.gensalt()).decode('utf8')
 
     @pytest.mark.parametrize(
         "mock_get_side_effect,expected_response",
@@ -28,21 +32,21 @@ class TestAuthenticate:
             ),
             (  # test_incorrect_password
                 [
-                    {"body": [["wrong pass"]], "statusCode": 200},
+                    {"body": [[incorrect_password_hash]], "statusCode": 200},
                     {"body": [[True]], "statusCode": 200},
                 ],
                 {"body": "Authentication failed.", "statusCode": 401},
             ),
             (  # test_correct_password_with_admin_user
                 [
-                    {"body": [["pass123"]], "statusCode": 200},
+                    {"body": [[correct_password_hash]], "statusCode": 200},
                     {"body": [[True]], "statusCode": 200},
                 ],
                 {"body": "Authenticated, you have admin access", "statusCode": 200},
             ),
             (  # test_correct_password_with_regular_user
                 [
-                    {"body": [["pass123"]], "statusCode": 200},
+                    {"body": [[correct_password_hash]], "statusCode": 200},
                     {"body": [[False]], "statusCode": 200},
                 ],
                 {"body": "Authenticated, you have regular access", "statusCode": 200},

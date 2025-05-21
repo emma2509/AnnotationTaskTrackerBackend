@@ -1,8 +1,10 @@
+import bcrypt
+
 from src.modules.user_table import (
     add_user,
     get_users,
 )
-from unittest.mock import patch
+from unittest.mock import patch, call
 from src.app import app
 import pytest
 
@@ -46,11 +48,10 @@ class TestAddUser:
 
             # Assert
             assert expected_response == actual_response
-            mock_add_to_table.assert_called_with(
-                "employee",
-                ["username", "firstname", "lastname", "team", "admin", "password"],
-                list(self.valid_json_input.values()),
-            )
+            assert mock_add_to_table.call_args.args[0] == "employee"
+            assert mock_add_to_table.call_args.args[1] == ["username", "firstname", "lastname", "team", "admin", "password"]
+            assert mock_add_to_table.call_args.args[2][:-1] == list(self.valid_json_input.values())[:-1]
+            assert bcrypt.checkpw(self.valid_json_input["password"].encode("utf-8"), mock_add_to_table.call_args.args[2][-1].encode("utf-8"))
 
     @patch("src.modules.user_table.add_to_table")
     @patch("src.modules.user_table.authenticate")
@@ -62,7 +63,7 @@ class TestAddUser:
         }
         expected_response = {
             "statusCode": 400,
-            "body": "Missing or incorrect JSON attributes. Error related to extracting key value: 'first-name'",
+            "body": "Missing or incorrect JSON attributes. Error related to extracting key value: 'password'",
         }
         with app.test_request_context(method="POST", json=invalid_json_input):
             # Act

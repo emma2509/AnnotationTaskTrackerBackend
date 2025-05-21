@@ -1,4 +1,5 @@
 from flask import request
+import bcrypt
 
 from ..config import EMPLOYEE_TABLE_NAME
 from .api_response import response_format
@@ -24,14 +25,15 @@ def authenticate():
             return get_user_password
         if is_user_admin["statusCode"] != 200:
             return is_user_admin
-        if get_user_password["body"][0][0] == password and is_user_admin["body"][0][0]:
-            return response_format(200, "Authenticated, you have admin access")
-        if (
-            get_user_password["body"][0][0] == password
-            and not is_user_admin["body"][0][0]
-        ):
-            return response_format(200, "Authenticated, you have regular access")
-        return response_format(401, "Authentication failed.")
+
+        hashed_password = get_user_password["body"][0][0]
+        if bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8")):
+            if is_user_admin["body"][0][0]:
+                return response_format(200, "Authenticated, you have admin access")
+            else:
+                return response_format(200, "Authenticated, you have regular access")
+        else:
+            return response_format(401, "Authentication failed.")
     except KeyError as error:
         return response_format(
             400,
