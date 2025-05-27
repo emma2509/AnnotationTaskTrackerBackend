@@ -14,7 +14,7 @@ from .modules.annotation_table import (
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "https://annotationtasktrackerfrontend.onrender.com"}})
+CORS(app, origins=["https://annotationtasktrackerfrontend.onrender.com"])
 
 
 @app.route("/log_in", methods=["POST"])
