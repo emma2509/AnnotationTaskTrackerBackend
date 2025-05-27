@@ -3,7 +3,7 @@ import bcrypt
 
 from ..config import EMPLOYEE_TABLE_NAME
 from .api_response import response_format
-from .database_transactions import get_record_field_from_table
+from .database_transactions import get_record_field_from_table_with_condition
 
 
 def authenticate():
@@ -12,13 +12,13 @@ def authenticate():
         username = request_headers["requester-user-name"]
         password = request_headers["requester-password"]
         # Get actual password for account to check against inputted password
-        get_user_password = get_record_field_from_table(
-            EMPLOYEE_TABLE_NAME, "password", f"WHERE username = '{username}'"
+        get_user_password = get_record_field_from_table_with_condition(
+            EMPLOYEE_TABLE_NAME, ["password"], "username", username
         )
 
         # Get user admin field value
-        is_user_admin = get_record_field_from_table(
-            EMPLOYEE_TABLE_NAME, "admin", f"WHERE username = '{username}'"
+        is_user_admin = get_record_field_from_table_with_condition(
+            EMPLOYEE_TABLE_NAME, ["admin"], "username", username
         )
 
         if get_user_password["statusCode"] != 200:

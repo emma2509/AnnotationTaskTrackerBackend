@@ -1,12 +1,14 @@
 import pytest
+from psycopg2.sql import SQL, Identifier
+
 from src.config import DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
 from src.modules.database_transactions import (
     get_database_connection,
     end_database_connection,
     add_to_table,
-    get_record_field_from_table,
+    get_record_field_from_table_with_condition,
     update_field,
-    delete_record,
+    delete_record, get_record_field_from_table, get_record_joined_table,
 )
 import psycopg2
 from unittest.mock import patch
@@ -82,7 +84,10 @@ class TestAddToTable:
             attributes = ["first-attribute", "second-attribute"]
             values = ["value-one", "value-two"]
 
-            expected_sql = "INSERT INTO test-table (first-attribute, second-attribute) VALUES (%s, %s);"
+            expected_sql = SQL("INSERT INTO {table_name} ({fields}) VALUES (%s, %s)").format(
+                table_name=Identifier(table_name),
+                fields=Identifier(attributes[0]) + SQL(',') + Identifier(attributes[1]),
+            )
             expected_response = {"statusCode": 200, "body": "Data successfully added"}
 
             # Act
@@ -126,8 +131,7 @@ class TestAddToTable:
 
 
 class TestGetFieldFromTable:
-    @pytest.mark.parametrize("condition", ["", "WHERE test-condition"])
-    def test_get_field(self, condition):
+    def test_get_field(self):
         # Arrange
         with patch(
             "src.modules.database_transactions.psycopg2.connect"
@@ -141,12 +145,12 @@ class TestGetFieldFromTable:
             mock_cursor_obj.fetchall.return_value = "mock response"
 
             table_name = "test-table"
-            field = "test-field"
-            expected_sql = f"SELECT test-field FROM test-table {condition};"
+            fields = ["test-field"]
+            expected_sql = "SELECT test-field FROM test-table;"
             expected_response = {"statusCode": 200, "body": "mock response"}
 
             # Act
-            actual_response = get_record_field_from_table(table_name, field, condition)
+            actual_response = get_record_field_from_table(table_name, fields)
 
             # Assert
             mock_cursor_obj.execute.assert_called_with(expected_sql)
@@ -167,14 +171,12 @@ class TestGetFieldFromTable:
 
             table_name = "test-table"
             field = "test-field"
-            expected_sql = "SELECT test-field FROM test-table ;"
             expected_response = {"statusCode": 500, "body": "Error: no records found"}
 
             # Act
-            actual_response = get_record_field_from_table(table_name, field, "")
+            actual_response = get_record_field_from_table(table_name, field)
 
             # Assert
-            mock_cursor_obj.execute.assert_called_with(expected_sql)
             assert expected_response == actual_response
 
     @pytest.mark.parametrize(
@@ -204,15 +206,185 @@ class TestGetFieldFromTable:
             mock_cursor_obj.execute.side_effect = mock_side_effect
 
             # Act
-            actual_response = get_record_field_from_table("", "", "")
+            actual_response = get_record_field_from_table("", "")
+
+            # Assert
+            assert expected_response == actual_response
+
+
+class TestGetFieldFromTableWithCondition:
+    def test_get_field(self):
+        # Arrange
+        with patch(
+            "src.modules.database_transactions.psycopg2.connect"
+        ) as mock_connect:
+            mock_connection_obj = (
+                mock_connect.return_value
+            )  # connection object returned from psycopg2.connect
+            mock_cursor_obj = (
+                mock_connection_obj.cursor.return_value
+            )  # cursor object returned from connection obj
+            mock_cursor_obj.fetchall.return_value = "mock response"
+
+            table_name = "test-table"
+            fields = ["test-field"]
+            condition_field = "condition-field"
+            condition_value = "condition-value"
+            expected_sql = SQL("SELECT {fields} FROM {table_name} WHERE {condition_field} = (%s);").format(
+                fields=SQL(',').join([Identifier(fields[0])]),
+                table_name=Identifier(table_name),
+                condition_field=Identifier(condition_field),
+            )
+            expected_response = {"statusCode": 200, "body": "mock response"}
+
+            # Act
+            actual_response = get_record_field_from_table_with_condition(table_name, fields, condition_field, condition_value)
+
+            # Assert
+            mock_cursor_obj.execute.assert_called_with(expected_sql, (condition_value, ))
+            assert expected_response == actual_response
+
+    def test_no_field_found(self):
+        # Arrange
+        with patch(
+            "src.modules.database_transactions.psycopg2.connect"
+        ) as mock_connect:
+            mock_connection_obj = (
+                mock_connect.return_value
+            )  # connection object returned from psycopg2.connect
+            mock_cursor_obj = (
+                mock_connection_obj.cursor.return_value
+            )  # cursor object returned from connection obj
+            mock_cursor_obj.fetchall.return_value = None
+
+            table_name = "test-table"
+            field = "test-field"
+            expected_response = {"statusCode": 500, "body": "Error: no records found"}
+
+            # Act
+            actual_response = get_record_field_from_table(table_name, field)
+
+            # Assert
+            assert expected_response == actual_response
+
+    @pytest.mark.parametrize(
+        "expected_response,mock_side_effect",
+        [
+            ({"statusCode": 500, "body": "Error: test-error"}, Exception("test-error")),
+            (
+                {
+                    "statusCode": 500,
+                    "body": "Error with reading from the database: test-error",
+                },
+                psycopg2.Error("test-error"),
+            ),
+        ],
+    )
+    def test_fail_get_field(self, expected_response, mock_side_effect):
+        # Arrange
+        with patch(
+            "src.modules.database_transactions.psycopg2.connect"
+        ) as mock_connect:
+            mock_connection_obj = (
+                mock_connect.return_value
+            )  # connection object returned from psycopg2.connect
+            mock_cursor_obj = (
+                mock_connection_obj.cursor.return_value
+            )  # cursor object returned from connection obj
+            mock_cursor_obj.execute.side_effect = mock_side_effect
+
+            # Act
+            actual_response = get_record_field_from_table("", "")
+
+            # Assert
+            assert expected_response == actual_response
+
+
+class TestGetFieldFromTableWithJoin:
+    def test_get_field(self):
+        # Arrange
+        with patch(
+            "src.modules.database_transactions.psycopg2.connect"
+        ) as mock_connect:
+            mock_connection_obj = (
+                mock_connect.return_value
+            )  # connection object returned from psycopg2.connect
+            mock_cursor_obj = (
+                mock_connection_obj.cursor.return_value
+            )  # cursor object returned from connection obj
+            mock_cursor_obj.fetchall.return_value = "mock response"
+
+            table_name = "test-table"
+            fields = ["test-field"]
+            join_condition = "JOIN ON 1 = 2"
+            expected_sql = "SELECT test-field FROM test-table JOIN ON 1 = 2;"
+            expected_response = {"statusCode": 200, "body": "mock response"}
+
+            # Act
+            actual_response = get_record_joined_table(table_name, fields, join_condition)
+
+            # Assert
+            mock_cursor_obj.execute.assert_called_with(expected_sql)
+            assert expected_response == actual_response
+
+    def test_no_field_found(self):
+        # Arrange
+        with patch(
+            "src.modules.database_transactions.psycopg2.connect"
+        ) as mock_connect:
+            mock_connection_obj = (
+                mock_connect.return_value
+            )  # connection object returned from psycopg2.connect
+            mock_cursor_obj = (
+                mock_connection_obj.cursor.return_value
+            )  # cursor object returned from connection obj
+            mock_cursor_obj.fetchall.return_value = None
+
+            table_name = "test-table"
+            field = "test-field"
+            expected_response = {"statusCode": 500, "body": "Error: no records found"}
+
+            # Act
+            actual_response = get_record_field_from_table(table_name, field)
+
+            # Assert
+            assert expected_response == actual_response
+
+    @pytest.mark.parametrize(
+        "expected_response,mock_side_effect",
+        [
+            ({"statusCode": 500, "body": "Error: test-error"}, Exception("test-error")),
+            (
+                {
+                    "statusCode": 500,
+                    "body": "Error with reading from the database: test-error",
+                },
+                psycopg2.Error("test-error"),
+            ),
+        ],
+    )
+    def test_fail_get_field(self, expected_response, mock_side_effect):
+        # Arrange
+        with patch(
+            "src.modules.database_transactions.psycopg2.connect"
+        ) as mock_connect:
+            mock_connection_obj = (
+                mock_connect.return_value
+            )  # connection object returned from psycopg2.connect
+            mock_cursor_obj = (
+                mock_connection_obj.cursor.return_value
+            )  # cursor object returned from connection obj
+            mock_cursor_obj.execute.side_effect = mock_side_effect
+
+            # Act
+            actual_response = get_record_field_from_table("", "")
 
             # Assert
             assert expected_response == actual_response
 
 
 class TestUpdateField:
-    @pytest.mark.parametrize("condition", ["", "WHERE test-condition"])
-    def test_success_update_field(self, condition):
+    def test_success_update_field(self):
         # Arrange
         with patch(
             "src.modules.database_transactions.psycopg2.connect"
@@ -225,18 +397,22 @@ class TestUpdateField:
             )  # cursor object returned from connection obj
 
             table_name = "test-table"
-            field = "test-field"
-            value = "test-value"
-            expected_sql = (
-                f"UPDATE test-table SET test-field = 'test-value' {condition};"
+            field_update = "test-field"
+            new_value = "test-value"
+            condition_field = "condition-field"
+            condition_value = "condition-value"
+            expected_sql = SQL("UPDATE {table_name} SET {field_to_update} = (%s) WHERE {condition_field} = (%s);").format(
+                table_name=Identifier(table_name),
+                field_to_update=Identifier(field_update),
+                condition_field=Identifier(condition_field),
             )
             expected_response = {"statusCode": 200, "body": "Data successfully updated"}
 
             # Act
-            actual_response = update_field(table_name, field, value, condition)
+            actual_response = update_field(table_name, field_update, new_value, condition_field, condition_value)
 
             # Assert
-            mock_cursor_obj.execute.assert_called_with(expected_sql)
+            mock_cursor_obj.execute.assert_called_with(expected_sql, (new_value, condition_value))
             assert expected_response == actual_response
 
     @pytest.mark.parametrize(
@@ -266,7 +442,7 @@ class TestUpdateField:
             mock_cursor_obj.execute.side_effect = mock_side_effect
 
             # Act
-            actual_response = update_field("", "", "", "")
+            actual_response = update_field("", "", "", "", "")
 
             # Assert
             assert expected_response == actual_response
@@ -286,19 +462,23 @@ class TestDeleteRecord:
             )  # cursor object returned from connection obj
 
             table_name = "test-table"
-            condition = "WHERE field=value"
+            condition_field = "condition-field"
+            condition_value = "condition-value"
 
-            expected_sql = "DELETE FROM test-table WHERE field=value;"
+            expected_sql = SQL("DELETE FROM {table_name} WHERE {condition_field} = (%s);").format(
+                table_name=Identifier(table_name),
+                condition_field=Identifier(condition_field),
+            )
             expected_response = {
                 "statusCode": 200,
                 "body": "Successfully deleted record",
             }
 
             # Act
-            actual_response = delete_record(table_name, condition)
+            actual_response = delete_record(table_name, condition_field, condition_value)
 
             # Assert
-            mock_cursor_obj.execute.assert_called_with(expected_sql)
+            mock_cursor_obj.execute.assert_called_with(expected_sql, (condition_value, ))
             assert expected_response == actual_response
 
     @pytest.mark.parametrize(
@@ -328,7 +508,7 @@ class TestDeleteRecord:
             mock_cursor_obj.execute.side_effect = mock_side_effect
 
             # Act
-            actual_response = delete_record("", "")
+            actual_response = delete_record("", "", "")
 
             # Assert
             assert expected_response == actual_response

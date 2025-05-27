@@ -40,4 +40,4 @@ def get_users():
     auth = authenticate()
     if auth["statusCode"] != 200:
         return auth
-    return get_record_field_from_table(EMPLOYEE_TABLE_NAME, "username", "")
+    return get_record_field_from_table(EMPLOYEE_TABLE_NAME, ["username"])

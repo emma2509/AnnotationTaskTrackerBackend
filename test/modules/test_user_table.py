@@ -88,4 +88,4 @@ class TestGetUsers:
 
         # Assert
         assert expected_response == actual_response
-        mock_get_record.assert_called_with("employee", "username", "")
+        mock_get_record.assert_called_with("employee", ["username"])

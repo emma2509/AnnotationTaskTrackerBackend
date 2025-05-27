@@ -3,10 +3,10 @@ from flask import request
 from .api_response import response_format
 from .authentication import authenticate
 from .database_transactions import (
-    get_record_field_from_table,
+    get_record_field_from_table_with_condition,
     add_to_table,
     update_field,
-    delete_record,
+    delete_record, get_record_joined_table,
 )
 from ..config import (
     ANNOTATION_TABLE_NAME,
@@ -20,9 +20,9 @@ def get_all_annotations():
     if auth["statusCode"] != 200:
         return auth
     # does inner join to get all annotation table fields and some details about the employee
-    fields = f"{ANNOTATION_TABLE_NAME}.*, {EMPLOYEE_TABLE_NAME}.firstname, {EMPLOYEE_TABLE_NAME}.lastname, {EMPLOYEE_TABLE_NAME}.team"
-    condition = f"INNER JOIN {EMPLOYEE_TABLE_NAME} ON {ANNOTATION_TABLE_NAME}.username={EMPLOYEE_TABLE_NAME}.username;"
-    return get_record_field_from_table(ANNOTATION_TABLE_NAME, fields, condition)
+    fields = [f"{ANNOTATION_TABLE_NAME}.*", f"{EMPLOYEE_TABLE_NAME}.firstname", f"{EMPLOYEE_TABLE_NAME}.lastname", f"{EMPLOYEE_TABLE_NAME}.team"]
+    join_statement = f"INNER JOIN {EMPLOYEE_TABLE_NAME} ON {ANNOTATION_TABLE_NAME}.username={EMPLOYEE_TABLE_NAME}.username;"
+    return get_record_joined_table(ANNOTATION_TABLE_NAME, fields, join_statement)
 
 
 def add_annotation_task():
@@ -58,11 +58,12 @@ def update_annotation_record():
     try:
         auth = authenticate()
         request_data = request.get_json()
+        request_headers = request.headers
         if auth["statusCode"] != 200:
             return auth
         elif (
             "regular" in auth["body"]
-            and request_data["requester-user-name"] != request_data["user-name"]
+            and request_headers["requester-user-name"] != request_data["user-name"]
         ):
             return response_format(403, "Incorrect permissions.")
         new_field_values = [
@@ -72,13 +73,13 @@ def update_annotation_record():
             request_data["annotated-data"],
             request_data["tags"],
         ]
-        condition = f"WHERE annotationid = {request_data['annotation-id']}"
 
         # get the original record to check against
-        original_field_values = get_record_field_from_table(
+        original_field_values = get_record_field_from_table_with_condition(
             ANNOTATION_TABLE_NAME,
-            ",".join(ANNOTATION_TABLE_ATTRIBUTES),  # getting all fields except the id
-            condition,
+            ANNOTATION_TABLE_ATTRIBUTES,  # getting all fields except the id
+            "annotationid",
+            request_data['annotation-id'],
         )
         if original_field_values["statusCode"] != 200:  # return error
             return original_field_values
@@ -95,7 +96,8 @@ def update_annotation_record():
                     ANNOTATION_TABLE_NAME,
                     ANNOTATION_TABLE_ATTRIBUTES[i],
                     new_field_values[i],
-                    condition,
+                    "annotationid",
+                    request_data['annotation-id'],
                 )
                 if response["statusCode"] != 200:  # return error
                     return response
@@ -121,7 +123,7 @@ def delete_annotation_record():
         annotation_id = request_data["annotation-id"]
 
         response = delete_record(
-            ANNOTATION_TABLE_NAME, f"WHERE annotationid = {annotation_id}"
+            ANNOTATION_TABLE_NAME, "annotationid", annotation_id
         )
 
         return response

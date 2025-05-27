@@ -53,7 +53,7 @@ class TestAuthenticate:
             ),
         ],
     )
-    @patch("src.modules.authentication.get_record_field_from_table")
+    @patch("src.modules.authentication.get_record_field_from_table_with_condition")
     def test_inputs(self, mock_get_field, mock_get_side_effect, expected_response):
         # Arrange
         mock_get_field.side_effect = mock_get_side_effect
@@ -65,7 +65,7 @@ class TestAuthenticate:
             # Assert
             assert expected_response == actual_response
 
-    @patch("src.modules.authentication.get_record_field_from_table")
+    @patch("src.modules.authentication.get_record_field_from_table_with_condition")
     def test_invalid_input(self, mock_get_field):
         # Arrange
         expected_response = {
