@@ -26,7 +26,12 @@ This will install all required dependencies, run linter and unit tests.
 ### Running unit tests
 Render build will fail if unit tests are failing.
 
-To run unit tests locally run `pytest test`
+To run unit tests locally run `pytest test/modules`
+
+### Running security tests
+1. Set DB env variables.
+2. Set env variables for an existing regular user (command: `export TEST_ACCOUNT_USERNAME={account-username} && export TEST_ACCOUNT_PASSWORD={account-password}`)
+3. Run tests using the following command: `pytest test/security`
 
 ### Calling API routes
 You can call the API routes by using `curl` commands.

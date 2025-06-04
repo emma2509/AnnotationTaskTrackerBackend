@@ -32,6 +32,6 @@ def run_ruff():
 @init
 def initialize(project):
     project.depends_on_requirements("requirements.txt")
-    project.set_property("dir_source_main_python", "src/modules")
+    project.set_property("dir_source_main_python", "src")
     project.set_property("dir_source_pytest_python", "test/modules")
     project.get_property("pytest_extra_args").append("-x")

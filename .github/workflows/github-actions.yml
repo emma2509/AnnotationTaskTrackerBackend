@@ -2,8 +2,25 @@ name: Annotation Task Tracker Backend Pipeline
 run-name: Annotation Task Tracker Backend Pipeline
 on: [push]
 jobs:
-  Test:
+  UnitTest:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9.x'
+      - name: Run pybuilder which includes running unit tests
+        run: |
+          export DB_HOST=${{ secrets.DB_HOST }}
+          export DB_USER=${{ secrets.DB_USER }}
+          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          python -m pip install pybuilder
+          pyb
+
+  SecurityTest:
+    runs-on: ubuntu-latest
+    needs: UnitTest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -17,10 +34,15 @@ jobs:
           export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           python -m pip install pybuilder
           pyb
+      - name: Run security tests
+        run: |
+          export TEST_ACCOUNT_USERNAME=${{ secrets.TEST_ACCOUNT_USERNAME }}
+          export TEST_ACCOUNT_PASSWORD=${{ secrets.TEST_ACCOUNT_PASSWORD }}
+          pytest test/security
 
   Deploy:
     runs-on: ubuntu-latest
-    needs: Test
+    needs: SecurityTest
     steps:
       - uses: actions/checkout@v3
       - name: Deploy
