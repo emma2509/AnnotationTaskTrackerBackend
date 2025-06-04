@@ -1,6 +1,12 @@
 name: Annotation Task Tracker Backend Pipeline
 run-name: Annotation Task Tracker Backend Pipeline
 on: [push]
+env:
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  TEST_ACCOUNT_USERNAME: ${{ secrets.TEST_ACCOUNT_USERNAME }}
+  TEST_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
 jobs:
   UnitTest:
     runs-on: ubuntu-latest
@@ -12,9 +18,6 @@ jobs:
           python-version: '3.9.x'
       - name: Run pybuilder which includes running unit tests
         run: |
-          export DB_HOST=${{ secrets.DB_HOST }}
-          export DB_USER=${{ secrets.DB_USER }}
-          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           python -m pip install pybuilder
           pyb
 
@@ -29,18 +32,10 @@ jobs:
           python-version: '3.9.x'
       - name: Run pybuilder
         run: |
-          export DB_HOST=${{ secrets.DB_HOST }}
-          export DB_USER=${{ secrets.DB_USER }}
-          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           python -m pip install pybuilder
           pyb
       - name: Run security tests
         run: |
-          export DB_HOST=${{ secrets.DB_HOST }}
-          export DB_USER=${{ secrets.DB_USER }}
-          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          export TEST_ACCOUNT_USERNAME=${{ secrets.TEST_ACCOUNT_USERNAME }}
-          export TEST_ACCOUNT_PASSWORD=${{ secrets.TEST_ACCOUNT_PASSWORD }}
           pytest test/security
 
   Deploy:
