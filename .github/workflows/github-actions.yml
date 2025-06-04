@@ -36,6 +36,9 @@ jobs:
           pyb
       - name: Run security tests
         run: |
+          export DB_HOST=${{ secrets.DB_HOST }}
+          export DB_USER=${{ secrets.DB_USER }}
+          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           export TEST_ACCOUNT_USERNAME=${{ secrets.TEST_ACCOUNT_USERNAME }}
           export TEST_ACCOUNT_PASSWORD=${{ secrets.TEST_ACCOUNT_PASSWORD }}
           pytest test/security
