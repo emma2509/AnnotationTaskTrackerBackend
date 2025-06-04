@@ -4,7 +4,7 @@ from src.modules.user_table import (
     add_user,
     get_users,
 )
-from unittest.mock import patch, call
+from unittest.mock import patch
 from src.app import app
 import pytest
 
@@ -49,9 +49,22 @@ class TestAddUser:
             # Assert
             assert expected_response == actual_response
             assert mock_add_to_table.call_args.args[0] == "employee"
-            assert mock_add_to_table.call_args.args[1] == ["username", "firstname", "lastname", "team", "admin", "password"]
-            assert mock_add_to_table.call_args.args[2][:-1] == list(self.valid_json_input.values())[:-1]
-            assert bcrypt.checkpw(self.valid_json_input["password"].encode("utf-8"), mock_add_to_table.call_args.args[2][-1].encode("utf-8"))
+            assert mock_add_to_table.call_args.args[1] == [
+                "username",
+                "firstname",
+                "lastname",
+                "team",
+                "admin",
+                "password",
+            ]
+            assert (
+                mock_add_to_table.call_args.args[2][:-1]
+                == list(self.valid_json_input.values())[:-1]
+            )
+            assert bcrypt.checkpw(
+                self.valid_json_input["password"].encode("utf-8"),
+                mock_add_to_table.call_args.args[2][-1].encode("utf-8"),
+            )
 
     @patch("src.modules.user_table.add_to_table")
     @patch("src.modules.user_table.authenticate")

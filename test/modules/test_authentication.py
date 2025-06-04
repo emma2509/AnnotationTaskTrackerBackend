@@ -12,8 +12,12 @@ class TestAuthenticate:
     generic_success_message = {"statusCode": 200, "body": "Success"}
     empty_input = {}
     valid_input = {"requester-user-name": "username", "requester-password": "pass123"}
-    correct_password_hash = bcrypt.hashpw(valid_input["requester-password"].encode("utf-8"), bcrypt.gensalt()).decode('utf8')
-    incorrect_password_hash= bcrypt.hashpw("wrong pass".encode("utf-8"), bcrypt.gensalt()).decode('utf8')
+    correct_password_hash = bcrypt.hashpw(
+        valid_input["requester-password"].encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf8")
+    incorrect_password_hash = bcrypt.hashpw(
+        "wrong pass".encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf8")
 
     @pytest.mark.parametrize(
         "mock_get_side_effect,expected_response",

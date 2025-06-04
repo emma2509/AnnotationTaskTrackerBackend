@@ -24,7 +24,12 @@ class TestGetAllAnnotations:
         assert expected_response == actual_response
         mock_get_fields.assert_called_with(
             "annotation",
-            ["annotation.*", "employee.firstname", "employee.lastname", "employee.team"],
+            [
+                "annotation.*",
+                "employee.firstname",
+                "employee.lastname",
+                "employee.team",
+            ],
             "INNER JOIN employee ON annotation.username=employee.username;",
         )
 
@@ -113,7 +118,11 @@ class TestUpdateAnnotationRecord:
     condition_value = "fake-id"
     annotation_table_name = "annotation"
     annotation_table_fields = [
-        "username","annotationstatus","originaldata","annotateddata","tags"
+        "username",
+        "annotationstatus",
+        "originaldata",
+        "annotateddata",
+        "tags",
     ]
     mock_get_records_response = {
         "statusCode": 200,
@@ -131,7 +140,9 @@ class TestUpdateAnnotationRecord:
         }
 
         # Act
-        with app.test_request_context(method="POST", json=invalid_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=invalid_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert
@@ -149,13 +160,18 @@ class TestUpdateAnnotationRecord:
         expected_response = {"statusCode": 500, "body": "Error: no records found"}
 
         # Act
-        with app.test_request_context(method="POST", json=self.json_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=self.json_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert
             assert expected_response == actual_response
             mock_get_record.assert_called_with(
-                self.annotation_table_name, self.annotation_table_fields, self.condition_field, self.condition_value
+                self.annotation_table_name,
+                self.annotation_table_fields,
+                self.condition_field,
+                self.condition_value,
             )
 
     @patch("src.modules.annotation_table.get_record_field_from_table_with_condition")
@@ -168,13 +184,18 @@ class TestUpdateAnnotationRecord:
         expected_response = {"statusCode": 200, "body": "Success updating record"}
 
         # Act
-        with app.test_request_context(method="POST", json=self.json_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=self.json_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert
             assert expected_response == actual_response
             mock_get_record.assert_called_with(
-                self.annotation_table_name, self.annotation_table_fields, self.condition_field, self.condition_value
+                self.annotation_table_name,
+                self.annotation_table_fields,
+                self.condition_field,
+                self.condition_value,
             )
             mock_update_field.assert_not_called()
 
@@ -193,16 +214,25 @@ class TestUpdateAnnotationRecord:
         expected_response = {"statusCode": 500, "body": "Error with updating record"}
 
         # Act
-        with app.test_request_context(method="POST", json=self.json_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=self.json_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert
             assert expected_response == actual_response
             mock_get_record.assert_called_with(
-                self.annotation_table_name, self.annotation_table_fields, self.condition_field, self.condition_value
+                self.annotation_table_name,
+                self.annotation_table_fields,
+                self.condition_field,
+                self.condition_value,
             )
             mock_update_field.assert_called_with(
-                self.annotation_table_name, "username", "new-name", self.condition_field, self.condition_value
+                self.annotation_table_name,
+                "username",
+                "new-name",
+                self.condition_field,
+                self.condition_value,
             )
 
     @patch("src.modules.annotation_table.get_record_field_from_table_with_condition")
@@ -217,16 +247,25 @@ class TestUpdateAnnotationRecord:
         expected_response = {"statusCode": 200, "body": "Success updating record"}
 
         # Act
-        with app.test_request_context(method="POST", json=self.json_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=self.json_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert
             assert expected_response == actual_response
             mock_get_record.assert_called_with(
-                self.annotation_table_name, self.annotation_table_fields, self.condition_field, self.condition_value
+                self.annotation_table_name,
+                self.annotation_table_fields,
+                self.condition_field,
+                self.condition_value,
             )
             mock_update_field.assert_called_with(
-                self.annotation_table_name, "username", "new-name", self.condition_field, self.condition_value
+                self.annotation_table_name,
+                "username",
+                "new-name",
+                self.condition_field,
+                self.condition_value,
             )
 
     @patch("src.modules.annotation_table.authenticate")
@@ -237,7 +276,9 @@ class TestUpdateAnnotationRecord:
         self.headers["requester-user-name"] = "different name"
 
         # Act
-        with app.test_request_context(method="POST", json=self.json_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=self.json_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert
@@ -258,7 +299,9 @@ class TestUpdateAnnotationRecord:
         self.json_input["user-name"] = "name"
 
         # Act
-        with app.test_request_context(method="POST", json=self.json_input, headers=self.headers):
+        with app.test_request_context(
+            method="POST", json=self.json_input, headers=self.headers
+        ):
             actual_response = update_annotation_record()
 
             # Assert

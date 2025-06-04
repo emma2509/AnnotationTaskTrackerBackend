@@ -30,9 +30,11 @@ def add_to_table(table_name, fields, values):
         value_placeholder = "%s" + ", %s" * (
             len(fields) - 1
         )  # create string placeholder for SQL command
-        sql = SQL("INSERT INTO {table_name} ({fields}) VALUES (" + value_placeholder + ")").format(
+        sql = SQL(
+            "INSERT INTO {table_name} ({fields}) VALUES (" + value_placeholder + ")"
+        ).format(
             table_name=Identifier(table_name),
-            fields=SQL(',').join(list_field),
+            fields=SQL(",").join(list_field),
         )
         db_cursor.execute(sql, values)
 
@@ -48,11 +50,15 @@ def add_to_table(table_name, fields, values):
 
 
 # Update field based on passed in condition
-def update_field(table_name, field_to_update, new_value, condition_field, condition_value):
+def update_field(
+    table_name, field_to_update, new_value, condition_field, condition_value
+):
     try:
         db_connection, db_cursor = get_database_connection()
 
-        sql = SQL("UPDATE {table_name} SET {field_to_update} = (%s) WHERE {condition_field} = (%s);").format(
+        sql = SQL(
+            "UPDATE {table_name} SET {field_to_update} = (%s) WHERE {condition_field} = (%s);"
+        ).format(
             table_name=Identifier(table_name),
             field_to_update=Identifier(field_to_update),
             condition_field=Identifier(condition_field),
@@ -71,15 +77,19 @@ def update_field(table_name, field_to_update, new_value, condition_field, condit
 
 
 # Read with condition applied
-def get_record_field_from_table_with_condition(table_name, fields, condition_field, condition_value):
+def get_record_field_from_table_with_condition(
+    table_name, fields, condition_field, condition_value
+):
     try:
         db_connection, db_cursor = get_database_connection()
 
         list_field = []
         for field in fields:
             list_field.append(Identifier(field))
-        sql = SQL("SELECT {fields} FROM {table_name} WHERE {condition_field} = (%s);").format(
-            fields=SQL(',').join(list_field),
+        sql = SQL(
+            "SELECT {fields} FROM {table_name} WHERE {condition_field} = (%s);"
+        ).format(
+            fields=SQL(",").join(list_field),
             table_name=Identifier(table_name),
             condition_field=Identifier(condition_field),
         )

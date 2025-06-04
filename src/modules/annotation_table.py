@@ -6,7 +6,8 @@ from .database_transactions import (
     get_record_field_from_table_with_condition,
     add_to_table,
     update_field,
-    delete_record, get_record_joined_table,
+    delete_record,
+    get_record_joined_table,
 )
 from ..config import (
     ANNOTATION_TABLE_NAME,
@@ -20,7 +21,12 @@ def get_all_annotations():
     if auth["statusCode"] != 200:
         return auth
     # does inner join to get all annotation table fields and some details about the employee
-    fields = [f"{ANNOTATION_TABLE_NAME}.*", f"{EMPLOYEE_TABLE_NAME}.firstname", f"{EMPLOYEE_TABLE_NAME}.lastname", f"{EMPLOYEE_TABLE_NAME}.team"]
+    fields = [
+        f"{ANNOTATION_TABLE_NAME}.*",
+        f"{EMPLOYEE_TABLE_NAME}.firstname",
+        f"{EMPLOYEE_TABLE_NAME}.lastname",
+        f"{EMPLOYEE_TABLE_NAME}.team",
+    ]
     join_statement = f"INNER JOIN {EMPLOYEE_TABLE_NAME} ON {ANNOTATION_TABLE_NAME}.username={EMPLOYEE_TABLE_NAME}.username;"
     return get_record_joined_table(ANNOTATION_TABLE_NAME, fields, join_statement)
 
@@ -79,7 +85,7 @@ def update_annotation_record():
             ANNOTATION_TABLE_NAME,
             ANNOTATION_TABLE_ATTRIBUTES,  # getting all fields except the id
             "annotationid",
-            request_data['annotation-id'],
+            request_data["annotation-id"],
         )
         if original_field_values["statusCode"] != 200:  # return error
             return original_field_values
@@ -97,7 +103,7 @@ def update_annotation_record():
                     ANNOTATION_TABLE_ATTRIBUTES[i],
                     new_field_values[i],
                     "annotationid",
-                    request_data['annotation-id'],
+                    request_data["annotation-id"],
                 )
                 if response["statusCode"] != 200:  # return error
                     return response
@@ -122,9 +128,7 @@ def delete_annotation_record():
         request_data = request.get_json()
         annotation_id = request_data["annotation-id"]
 
-        response = delete_record(
-            ANNOTATION_TABLE_NAME, "annotationid", annotation_id
-        )
+        response = delete_record(ANNOTATION_TABLE_NAME, "annotationid", annotation_id)
 
         return response
     except KeyError as error:

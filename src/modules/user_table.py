@@ -11,7 +11,9 @@ def add_user():
     try:
         # Extract the values in the JSON request
         request_data = request.get_json()
-        hashed_password = bcrypt.hashpw(request_data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        hashed_password = bcrypt.hashpw(
+            request_data["password"].encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
         attribute_value_list = [
             request_data["user-name"],
             request_data["first-name"],

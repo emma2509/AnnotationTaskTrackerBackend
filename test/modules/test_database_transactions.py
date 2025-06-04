@@ -8,7 +8,9 @@ from src.modules.database_transactions import (
     add_to_table,
     get_record_field_from_table_with_condition,
     update_field,
-    delete_record, get_record_field_from_table, get_record_joined_table,
+    delete_record,
+    get_record_field_from_table,
+    get_record_joined_table,
 )
 import psycopg2
 from unittest.mock import patch
@@ -84,9 +86,11 @@ class TestAddToTable:
             attributes = ["first-attribute", "second-attribute"]
             values = ["value-one", "value-two"]
 
-            expected_sql = SQL("INSERT INTO {table_name} ({fields}) VALUES (%s, %s)").format(
+            expected_sql = SQL(
+                "INSERT INTO {table_name} ({fields}) VALUES (%s, %s)"
+            ).format(
                 table_name=Identifier(table_name),
-                fields=Identifier(attributes[0]) + SQL(',') + Identifier(attributes[1]),
+                fields=Identifier(attributes[0]) + SQL(",") + Identifier(attributes[1]),
             )
             expected_response = {"statusCode": 200, "body": "Data successfully added"}
 
@@ -230,18 +234,22 @@ class TestGetFieldFromTableWithCondition:
             fields = ["test-field"]
             condition_field = "condition-field"
             condition_value = "condition-value"
-            expected_sql = SQL("SELECT {fields} FROM {table_name} WHERE {condition_field} = (%s);").format(
-                fields=SQL(',').join([Identifier(fields[0])]),
+            expected_sql = SQL(
+                "SELECT {fields} FROM {table_name} WHERE {condition_field} = (%s);"
+            ).format(
+                fields=SQL(",").join([Identifier(fields[0])]),
                 table_name=Identifier(table_name),
                 condition_field=Identifier(condition_field),
             )
             expected_response = {"statusCode": 200, "body": "mock response"}
 
             # Act
-            actual_response = get_record_field_from_table_with_condition(table_name, fields, condition_field, condition_value)
+            actual_response = get_record_field_from_table_with_condition(
+                table_name, fields, condition_field, condition_value
+            )
 
             # Assert
-            mock_cursor_obj.execute.assert_called_with(expected_sql, (condition_value, ))
+            mock_cursor_obj.execute.assert_called_with(expected_sql, (condition_value,))
             assert expected_response == actual_response
 
     def test_no_field_found(self):
@@ -321,7 +329,9 @@ class TestGetFieldFromTableWithJoin:
             expected_response = {"statusCode": 200, "body": "mock response"}
 
             # Act
-            actual_response = get_record_joined_table(table_name, fields, join_condition)
+            actual_response = get_record_joined_table(
+                table_name, fields, join_condition
+            )
 
             # Assert
             mock_cursor_obj.execute.assert_called_with(expected_sql)
@@ -401,7 +411,9 @@ class TestUpdateField:
             new_value = "test-value"
             condition_field = "condition-field"
             condition_value = "condition-value"
-            expected_sql = SQL("UPDATE {table_name} SET {field_to_update} = (%s) WHERE {condition_field} = (%s);").format(
+            expected_sql = SQL(
+                "UPDATE {table_name} SET {field_to_update} = (%s) WHERE {condition_field} = (%s);"
+            ).format(
                 table_name=Identifier(table_name),
                 field_to_update=Identifier(field_update),
                 condition_field=Identifier(condition_field),
@@ -409,10 +421,14 @@ class TestUpdateField:
             expected_response = {"statusCode": 200, "body": "Data successfully updated"}
 
             # Act
-            actual_response = update_field(table_name, field_update, new_value, condition_field, condition_value)
+            actual_response = update_field(
+                table_name, field_update, new_value, condition_field, condition_value
+            )
 
             # Assert
-            mock_cursor_obj.execute.assert_called_with(expected_sql, (new_value, condition_value))
+            mock_cursor_obj.execute.assert_called_with(
+                expected_sql, (new_value, condition_value)
+            )
             assert expected_response == actual_response
 
     @pytest.mark.parametrize(
@@ -465,7 +481,9 @@ class TestDeleteRecord:
             condition_field = "condition-field"
             condition_value = "condition-value"
 
-            expected_sql = SQL("DELETE FROM {table_name} WHERE {condition_field} = (%s);").format(
+            expected_sql = SQL(
+                "DELETE FROM {table_name} WHERE {condition_field} = (%s);"
+            ).format(
                 table_name=Identifier(table_name),
                 condition_field=Identifier(condition_field),
             )
@@ -475,10 +493,12 @@ class TestDeleteRecord:
             }
 
             # Act
-            actual_response = delete_record(table_name, condition_field, condition_value)
+            actual_response = delete_record(
+                table_name, condition_field, condition_value
+            )
 
             # Assert
-            mock_cursor_obj.execute.assert_called_with(expected_sql, (condition_value, ))
+            mock_cursor_obj.execute.assert_called_with(expected_sql, (condition_value,))
             assert expected_response == actual_response
 
     @pytest.mark.parametrize(
