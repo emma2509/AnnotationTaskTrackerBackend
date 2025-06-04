@@ -4,6 +4,7 @@ on: [push]
 jobs:
   Test:
     runs-on: ubuntu-latest
+    environment: Test
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
