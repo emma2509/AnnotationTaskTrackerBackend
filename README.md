@@ -10,8 +10,12 @@ Create virtual env: `python -m venv nameofvenv`
 
 Activate env: `source .nameofvenv/bin/activate`
 
-#### Install dependencies
-Run `pip install -r requirements.txt`
+#### Run builder
+Run `pip install pybuilder`
+
+Then run builder: `pyb`
+
+This will install all required dependencies, run linter and unit tests.
 
 ### Running locally
 1. To connect to database you will need to go to Render and get the database external URL. This will be in this format `postgresql://USER:PASSWORD@EXTERNAL_HOST:PORT/DATABASE`
@@ -30,6 +34,9 @@ You can call the API routes by using `curl` commands.
 Below is an example command you can use to call an API route, replace the values in the `[]` with the API call values.
 
 `curl -X [POST/GET] -H 'Content-Type: application/json' -d '[JSON data]' [API-URL]`
+
+#### Install dependencies
+Run `pip install -r requirements.txt`
 
 ### Lint code
 [Ruff](https://github.com/astral-sh/ruff?tab=readme-ov-file) is used as a linter and formater.
