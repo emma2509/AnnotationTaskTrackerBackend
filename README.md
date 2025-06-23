@@ -78,3 +78,23 @@ API routes:
 Run linter: `ruff check`
 
 Run formatter: `ruff format`
+
+
+### References:
+
+flask (2010) [online] Flask, Available from: https://flask.palletsprojects.com/en/stable/ [Accessed 23/06/2025] [1]
+
+bcrypt (2025) [online] bcrypt, Available from: https://pypi.org/project/bcrypt/#description [Accessed 23/06/2025] [2]
+
+psycopg2 (2024) [online] bcrypt, Available from: https://pypi.org/project/psycopg2/ [Accessed 23/06/2025] [3]
+
+flask-cor (2024) [online] bcrypt, Available from: https://pypi.org/project/flask-cors/ [Accessed 23/06/2025] [4]
+
+unittest (2025) [online] bcrypt, Available from: https://docs.python.org/3/library/unittest.html [Accessed 23/06/2025] [5]
+
+pytest (2015) [online] bcrypt, Available from: https://docs.pytest.org/en/stable/ [Accessed 23/06/2025] [6]
+
+os (2025) [online] bcrypt, Available from: https://docs.python.org/3/library/os.html [Accessed 23/06/2025] [7]
+
+pybuilder (2025) [online] bcrypt, Available from: https://pybuilder.io/ [Accessed 23/06/2025] [8]
+

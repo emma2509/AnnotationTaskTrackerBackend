@@ -1,5 +1,7 @@
+# <-***** psycopg2 (2024) [3] - START
 import psycopg2
 from psycopg2.sql import Identifier, SQL
+# ->***** psycopg2 (2024) [3] - END
 
 from ..config import DB_HOST, DB_NAME, DB_USER, DB_PASSWORD
 from .api_response import response_format

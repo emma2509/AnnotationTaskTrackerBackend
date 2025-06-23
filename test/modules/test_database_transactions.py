@@ -1,5 +1,10 @@
+# <-***** pytest (2015) [6] - START
 import pytest
+# ->***** pytest (2015) [6] - END
+# <-***** psycopg2 (2024) [3] - START
+import psycopg2
 from psycopg2.sql import SQL, Identifier
+# ->***** psycopg2 (2024) [3] - END
 
 from src.config import DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
 from src.modules.database_transactions import (
@@ -12,8 +17,9 @@ from src.modules.database_transactions import (
     get_record_field_from_table,
     get_record_joined_table,
 )
-import psycopg2
+# <-***** unittest (2025) [5] - START
 from unittest.mock import patch
+# ->***** unittest (2025) [5] - END
 
 
 class TestGetDatabaseConnection:

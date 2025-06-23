@@ -1,4 +1,6 @@
+# <-***** flask (2010) [1] - START
 from flask import Flask
+# ->***** flask (2010) [1] - END
 
 from .modules.authentication import authenticate
 from .modules.user_table import (
@@ -11,7 +13,9 @@ from .modules.annotation_table import (
     update_annotation_record,
     delete_annotation_record,
 )
+# <-***** flask-cors (2025) [4] - START
 from flask_cors import CORS
+# ->***** flask-cors (2025) [4] - END
 
 app = Flask(__name__)
 CORS(app)
