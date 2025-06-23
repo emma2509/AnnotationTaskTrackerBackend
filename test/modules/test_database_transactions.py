@@ -1,6 +1,7 @@
 # <-***** pytest (2015) [6] - START
 import pytest
 # ->***** pytest (2015) [6] - END
+
 # <-***** psycopg2 (2024) [3] - START
 import psycopg2
 from psycopg2.sql import SQL, Identifier
@@ -17,6 +18,7 @@ from src.modules.database_transactions import (
     get_record_field_from_table,
     get_record_joined_table,
 )
+
 # <-***** unittest (2025) [5] - START
 from unittest.mock import patch
 # ->***** unittest (2025) [5] - END

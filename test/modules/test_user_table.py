@@ -6,10 +6,13 @@ from src.modules.user_table import (
     add_user,
     get_users,
 )
+
 # <-***** unittest (2025) [5] - START
 from unittest.mock import patch
+
 # ->***** unittest (2025) [5] - END
 from src.app import app
+
 # <-***** pytest (2015) [6] - START
 import pytest
 # ->***** pytest (2015) [6] - END

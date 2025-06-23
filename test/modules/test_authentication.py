@@ -8,6 +8,7 @@ import bcrypt
 
 from src.modules.authentication import authenticate
 from src.app import app
+
 # <-***** pytest (2015) [6] - START
 import pytest
 # <-***** pytest (2015) [6] - END
