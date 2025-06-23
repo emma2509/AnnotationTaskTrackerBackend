@@ -36,9 +36,40 @@ To run unit tests locally run `pytest test/modules`
 ### Calling API routes
 You can call the API routes by using `curl` commands.
 
-Below is an example command you can use to call an API route, replace the values in the `[]` with the API call values.
+Below is an example command you can use to call an API route, replace the `[]` variable with the API call values.
 
-`curl -X [POST/GET] -H '{"Content-Type": "application/json","requester-user-name":"[username]","requester-password":"[password]"}' -d '[JSON data]' [API-URL]`
+`curl -X [POST/GET] -H '{"Content-Type": "application/json","requester-user-name":"[username]","requester-password":"[password]"}' -d '[input]' [API-URL/ROUTE]`
+
+API routes:
+* log_in
+   * Route type: POST
+   * Input format: empty (`{}`)
+   * Output: authentication status and authorisation level.
+* add_user
+   * Route type: POST
+   * Input format: `{"user-name": "string", "first-name": "string", "last-name": "string", "team": "string", "admin": boolean, "password": "string"}`
+   * Output: api call and action status.
+* add_annotation
+   * Route type: POST
+   * Input format: `{"user-name": "string", "annotation-status": "string: Not started, In progress, Completed", "orginal-data": "string", "annotated-data": "string", "tags": "string list, strings seperated by commas"}`
+   * Output: api call and action status.
+* update_annotation
+   * Route type: POST
+   * Input format: `{"annotation-id": "string number", "user-name": "string", "annotation-status": "string: Not started, In progress, Completed", "orginal-data": "string", "annotated-data": "string", "tags": "string list, strings seperated by commas"}`
+   * Output: api call and action status.
+* delete_annotation
+   * Route type: POST
+   * Input format: `{"annotation-id": "string number"}`
+   * Output: api call and action status.
+* get_users
+   * Route type: GET
+   * Input format: -
+   * Output: list of all user details
+* get_annotation
+   * Route type: GET
+   * Input format: -
+   * Output: list of all annotation tasks
+
 
 
 ### Lint code
