@@ -38,7 +38,6 @@ You can call the API routes by using `curl` commands.
 
 Below is an example command you can use to call an API route, replace the `[]` variable with the API call values.
 
-`curl -X [POST/GET] -H '{"Content-Type": "application/json","requester-user-name":"[username]","requester-password":"[password]"}' -d '[input]' [API-URL/ROUTE]`
 `curl -X [GET/POST] -H "Accept: application/json" -H "Content-Type: application/json" -H "requester-user-name: [username]" -H "requester-password: [password]" -d "[input]" [API URL]/[ROUTE]`
 
 API routes:
