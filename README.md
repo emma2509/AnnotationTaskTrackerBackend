@@ -51,11 +51,11 @@ API routes:
    * Output: api call and action status.
 * add_annotation
    * Route type: POST
-   * Input format: `{"user-name": "string", "annotation-status": "string: Not started, In progress, Completed", "orginal-data": "string", "annotated-data": "string", "tags": "string list, strings seperated by commas"}`
+   * Input format: `{"user-name": "string", "annotation-status": "string: Not started, In progress, Completed", "orginal-data": "string", "annotated-data": "string", "tags": "stirng list: ["one", "two"]"}`
    * Output: api call and action status.
 * update_annotation
    * Route type: POST
-   * Input format: `{"annotation-id": "string number", "user-name": "string", "annotation-status": "string: Not started, In progress, Completed", "orginal-data": "string", "annotated-data": "string", "tags": "string list, strings seperated by commas"}`
+   * Input format: `{"annotation-id": "string number", "user-name": "string", "annotation-status": "string: Not started, In progress, Completed", "orginal-data": "string", "annotated-data": "string", "tags": "stirng list: ["one", "two"]"}`
    * Output: api call and action status.
 * delete_annotation
    * Route type: POST
